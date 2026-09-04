@@ -96,6 +96,28 @@ class AccountFlowTests(TestCase):
         self.assertRedirects(response, reverse("core:home"))
         self.assertNotIn("_auth_user_id", self.client.session)
 
+    def test_unverified_user_cannot_start_an_authenticated_session(self) -> None:
+        unverified_user = get_user_model().objects.create_user(
+            email="unverified@example.com",
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse("account_login"),
+            {"login": unverified_user.email, "password": self.password},
+        )
+
+        self.assertRedirects(response, reverse("account_email_verification_sent"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_login_rejects_an_external_return_url(self) -> None:
+        response = self.client.post(
+            f"{reverse('account_login')}?next=https://untrusted.example/account",
+            {"login": self.user.email, "password": self.password},
+        )
+
+        self.assertRedirects(response, reverse("accounts:dashboard"))
+
     def test_password_reset_sends_a_link_without_disclosing_the_account(self) -> None:
         response = self.client.post(
             reverse("account_reset_password"), {"email": self.user.email}
@@ -258,3 +280,26 @@ class WishlistFlowTests(TestCase):
         response = self.client.get(reverse("accounts:wishlist"))
 
         self.assertNotContains(response, self.watch.name)
+
+    def test_wishlist_toggle_requires_post_and_rejects_external_return_url(
+        self,
+    ) -> None:
+        self.client.force_login(self.user)
+        toggle_url = reverse(
+            "accounts:wishlist_toggle",
+            kwargs={"slug": self.watch.slug},
+        )
+
+        response = self.client.get(toggle_url)
+
+        self.assertEqual(response.status_code, 405)
+
+        response = self.client.post(
+            toggle_url,
+            {"next": "https://untrusted.example/wishlist"},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )

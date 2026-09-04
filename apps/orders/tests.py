@@ -1,9 +1,11 @@
 from datetime import timedelta
 from decimal import Decimal
+from threading import Barrier, Lock, Thread
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.db import close_old_connections
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -175,6 +177,37 @@ class CouponServiceTests(OrderFactoryMixin, TestCase):
         with self.assertRaises(CouponValidationError):
             checkout_summary(self.cart, coupon_code="MINIMUM")
 
+    def test_coupon_rejects_inactive_and_not_yet_valid_codes(self) -> None:
+        Coupon.objects.create(
+            code="INACTIVE",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("100.00"),
+            is_active=False,
+        )
+        Coupon.objects.create(
+            code="FUTURE",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("100.00"),
+            valid_from=timezone.now() + timedelta(minutes=1),
+        )
+
+        with self.assertRaises(CouponValidationError):
+            checkout_summary(self.cart, coupon_code="INACTIVE")
+        with self.assertRaises(CouponValidationError):
+            checkout_summary(self.cart, coupon_code="FUTURE")
+
+    def test_fixed_coupon_cannot_reduce_the_total_below_zero(self) -> None:
+        Coupon.objects.create(
+            code="FULLVALUE",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("10000.00"),
+        )
+
+        summary = checkout_summary(self.cart, coupon_code="FULLVALUE")
+
+        self.assertEqual(summary.discount, Decimal("7990.00"))
+        self.assertEqual(summary.total, Decimal("0.00"))
+
 
 class OrderServiceTests(OrderFactoryMixin, TestCase):
     def setUp(self) -> None:
@@ -235,6 +268,110 @@ class OrderServiceTests(OrderFactoryMixin, TestCase):
         self.assertTrue(CartItem.objects.filter(pk=self.cart_item.pk).exists())
         self.watch.refresh_from_db()
         self.assertEqual(self.watch.stock, 1)
+
+    def test_invalid_coupon_rolls_back_order_creation_and_keeps_cart(self) -> None:
+        Coupon.objects.create(
+            code="INACTIVE",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("100.00"),
+            is_active=False,
+        )
+
+        with self.assertRaises(CouponValidationError):
+            create_paid_order(
+                user=self.user,
+                cart=self.cart,
+                shipping_address=self.shipping_address(),
+                coupon_code="INACTIVE",
+            )
+
+        self.assertFalse(Order.objects.exists())
+        self.assertTrue(CartItem.objects.filter(pk=self.cart_item.pk).exists())
+        self.watch.refresh_from_db()
+        self.assertEqual(self.watch.stock, 3)
+
+    def test_order_cannot_be_created_from_another_customers_cart(self) -> None:
+        other_user = get_user_model().objects.create_user(
+            email="other@example.com",
+            password="a-strong-test-password",
+        )
+
+        with self.assertRaises(CheckoutValidationError):
+            create_paid_order(
+                user=other_user,
+                cart=self.cart,
+                shipping_address=self.shipping_address(),
+            )
+
+        self.assertFalse(Order.objects.exists())
+        self.assertTrue(CartItem.objects.filter(pk=self.cart_item.pk).exists())
+        self.watch.refresh_from_db()
+        self.assertEqual(self.watch.stock, 3)
+
+
+class TransactionalStockReservationTests(OrderFactoryMixin, TransactionTestCase):
+    password = "a-strong-test-password"
+
+    def setUp(self) -> None:
+        self.watch = self.create_watch(stock=1)
+        self.users = [
+            get_user_model().objects.create_user(
+                email=f"collector-{index}@example.com",
+                password=self.password,
+            )
+            for index in range(2)
+        ]
+        self.carts = [Cart.objects.create(user=user) for user in self.users]
+        for cart in self.carts:
+            CartItem.objects.create(cart=cart, watch=self.watch, quantity=1)
+
+    def test_simultaneous_checkouts_allocate_stock_to_only_one_customer(self) -> None:
+        barrier = Barrier(2)
+        result_lock = Lock()
+        results = []
+        unexpected_errors = []
+
+        def checkout(user_id: int, cart_id: int) -> None:
+            close_old_connections()
+            try:
+                barrier.wait()
+                user = get_user_model().objects.get(pk=user_id)
+                cart = Cart.objects.get(pk=cart_id)
+                create_paid_order(
+                    user=user,
+                    cart=cart,
+                    shipping_address=self.shipping_address(),
+                )
+            except CheckoutValidationError:
+                result = "rejected"
+            except Exception as error:  # pragma: no cover - assertion below records it
+                with result_lock:
+                    unexpected_errors.append(repr(error))
+                return
+            else:
+                result = "paid"
+            finally:
+                close_old_connections()
+
+            with result_lock:
+                results.append(result)
+
+        threads = [
+            Thread(target=checkout, args=(user.pk, cart.pk))
+            for user, cart in zip(self.users, self.carts, strict=True)
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=10)
+
+        self.assertFalse(any(thread.is_alive() for thread in threads))
+        self.assertEqual(unexpected_errors, [])
+        self.assertCountEqual(results, ["paid", "rejected"])
+        self.assertEqual(Order.objects.count(), 1)
+        self.watch.refresh_from_db()
+        self.assertEqual(self.watch.stock, 0)
+        self.assertEqual(CartItem.objects.count(), 1)
 
 
 class CheckoutFlowTests(OrderFactoryMixin, TestCase):
@@ -327,6 +464,18 @@ class CheckoutFlowTests(OrderFactoryMixin, TestCase):
         self.assertTrue(self.cart.items.exists())
         self.watch.refresh_from_db()
         self.assertEqual(self.watch.stock, 3)
+
+    def test_unknown_mock_payment_outcome_returns_a_bad_request(self) -> None:
+        self.begin_saved_address_checkout()
+
+        response = self.client.post(
+            reverse("orders:mock_payment"),
+            {"outcome": "unexpected"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Order.objects.exists())
+        self.assertTrue(self.cart.items.exists())
 
     def test_order_detail_is_scoped_to_the_customer(self) -> None:
         order = create_paid_order(

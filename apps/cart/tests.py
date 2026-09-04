@@ -168,6 +168,31 @@ class CartFlowTests(CartFactoryMixin, TestCase):
         self.assertEqual(user_cart.items.get(watch=self.watch).quantity, 3)
         self.assertFalse(Cart.objects.filter(pk=guest_cart.pk).exists())
 
+    def test_login_discards_unavailable_guest_items_during_cart_merge(self) -> None:
+        self.add_to_cart(1)
+        guest_cart = self.guest_cart()
+        self.watch.stock = 0
+        self.watch.save(update_fields=["stock", "updated_at"])
+        user = get_user_model().objects.create_user(
+            email="collector@example.com",
+            password=self.password,
+        )
+        EmailAddress.objects.create(
+            user=user,
+            email=user.email,
+            primary=True,
+            verified=True,
+        )
+
+        response = self.client.post(
+            reverse("account_login"),
+            {"login": user.email, "password": self.password},
+        )
+
+        self.assertRedirects(response, reverse("accounts:dashboard"))
+        self.assertFalse(Cart.objects.filter(pk=guest_cart.pk).exists())
+        self.assertFalse(Cart.objects.get(user=user).items.exists())
+
     def test_add_uses_a_safe_return_url(self) -> None:
         response = self.add_to_cart(1, next="https://untrusted.example/cart")
 

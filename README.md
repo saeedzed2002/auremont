@@ -13,9 +13,14 @@ authenticated carts, server-calculated prices, stock-limited quantities,
 POST-only cart mutations, and cart merging when a guest signs in. **Phase 6 —
 Checkout & Orders** adds delivery-address selection or one-time entry, an order
 review, transaction-safe stock revalidation, order snapshots, mock payment
-outcomes, and customer order history.
+outcomes, and customer order history. **Phase 7 — Wishlist & Coupons** adds
+private saved watches and server-revalidated checkout discounts. **Phase 8 —
+Reviews** adds moderated, verified-purchase product reviews. **Phase 9 —
+Testing & Hardening** covers authentication boundaries, safe redirects, cart
+merge adjustments, coupon failure rollback, payment errors, and concurrent
+stock allocation.
 
-The remaining planned work is testing hardening, visual polish, and production deployment.
+The remaining planned work is visual polish and production deployment.
 
 ## Stack
 
