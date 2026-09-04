@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Saved addresses — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-5xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+    <div class="flex flex-wrap items-end justify-between gap-5 border-b border-charcoal/15 pb-7">
+      <div>
+        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Private account</p>
+        <h1 class="mt-4 font-display text-5xl tracking-[-0.035em] text-charcoal">Saved addresses.</h1>
+      </div>
+      <a class="rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'accounts:address_create' %}">Add address</a>
+    </div>
+
+    <div class="mt-8 grid gap-5 md:grid-cols-2">
+      {% for address in addresses %}
+        <article class="border border-charcoal/15 p-6">
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-display text-2xl text-charcoal">{{ address.full_name }}</h2>
+            {% if address.is_default %}<span class="border border-brass/50 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-brass">Default</span>{% endif %}
+          </div>
+          <address class="mt-5 not-italic text-sm leading-6 text-graphite">
+            {{ address.address_line|linebreaksbr }}<br>
+            {{ address.city }}, {{ address.province }} {{ address.postal_code }}<br>
+            {{ address.phone }}
+          </address>
+          <div class="mt-6 flex gap-5 text-xs font-semibold uppercase tracking-[0.15em]">
+            <a class="text-charcoal underline decoration-brass underline-offset-4 hover:text-graphite" href="{% url 'accounts:address_update' address.pk %}">Edit</a>
+            <a class="text-graphite underline decoration-brass underline-offset-4 hover:text-charcoal" href="{% url 'accounts:address_delete' address.pk %}">Remove</a>
+          </div>
+        </article>
+      {% empty %}
+        <p class="border border-dashed border-charcoal/25 px-5 py-12 text-center text-sm text-graphite md:col-span-2">Save a delivery address now to make a future checkout less interruptive.</p>
+      {% endfor %}
+    </div>
+    <a class="mt-10 inline-flex text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline decoration-brass underline-offset-4 hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'accounts:dashboard' %}">Return to account</a>
+  </section>
+{% endblock %}

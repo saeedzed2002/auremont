@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm email — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-xl px-5 py-16 sm:px-8 lg:py-24">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">One final detail</p>
+    <h1 class="mt-4 font-display text-5xl tracking-[-0.035em] text-charcoal">Confirm your email.</h1>
+    {% if confirmation %}
+      <p class="mt-5 text-base leading-7 text-graphite">Confirm <span class="font-semibold text-charcoal">{{ confirmation.email_address.email }}</span> to activate your Auremont account.</p>
+      <form class="mt-9" method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+        {% csrf_token %}
+        <button class="rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Confirm email</button>
+      </form>
+    {% else %}
+      <p class="mt-5 text-base leading-7 text-graphite">This confirmation link is no longer valid.</p>
+    {% endif %}
+  </section>
+{% endblock %}

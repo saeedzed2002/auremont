@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block title %}Sign in — Auremont{% endblock %}
+{% block meta_description %}Sign in to manage your Auremont profile and saved delivery addresses.{% endblock %}
+
+{% block content %}
+  <section class="mx-auto grid min-h-[calc(100vh-13rem)] max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:px-10 lg:py-24">
+    <div class="border-l-2 border-brass pl-5">
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Auremont account</p>
+      <h1 class="mt-4 font-display text-5xl leading-[0.95] tracking-[-0.035em] text-charcoal sm:text-6xl">A considered collection starts here.</h1>
+      <p class="mt-6 max-w-md text-base leading-7 text-graphite">Sign in to keep your delivery details ready for the pieces you choose.</p>
+    </div>
+
+    <div class="max-w-lg border border-charcoal/15 bg-stone/45 p-6 sm:p-9">
+      <h2 class="font-display text-3xl text-charcoal">Sign in</h2>
+      <p class="mt-2 text-sm leading-6 text-graphite">Use the email address associated with your account.</p>
+      <form class="account-form mt-7 space-y-5" method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% include "components/form_fields.html" with form=form %}
+        {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+        <button class="w-full rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Sign in</button>
+      </form>
+
+      {% if google_login_enabled %}
+        <div class="my-7 flex items-center gap-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-graphite before:h-px before:flex-1 before:bg-charcoal/15 after:h-px after:flex-1 after:bg-charcoal/15">or</div>
+        <a class="block rounded-sm border border-charcoal/25 px-5 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% provider_login_url 'google' process='login' %}">Continue with Google</a>
+      {% endif %}
+
+      <div class="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-graphite">
+        <a class="underline decoration-brass underline-offset-4 hover:text-charcoal" href="{% url 'account_reset_password' %}">Forgot password?</a>
+        <a class="underline decoration-brass underline-offset-4 hover:text-charcoal" href="{% url 'account_signup' %}">Create an account</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

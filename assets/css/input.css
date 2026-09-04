@@ -46,6 +46,22 @@
   mask-image: radial-gradient(transparent 0 67%, #000 67.5%);
 }
 
+@layer components {
+  .account-form input:not([type="checkbox"]),
+  .account-form textarea,
+  .account-form select {
+    @apply mt-2 block w-full rounded-sm border border-charcoal/25 bg-ivory px-3 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-graphite/60 focus:border-brass focus:ring-1 focus:ring-brass;
+  }
+
+  .account-form input[type="checkbox"] {
+    @apply mt-0.5 size-4 rounded border-charcoal/30 text-charcoal focus:ring-brass;
+  }
+
+  .account-form .errorlist {
+    @apply mt-2 list-none text-sm text-red-800;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

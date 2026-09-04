@@ -1,0 +1,18 @@
+{% for hidden_field in form.hidden_fields %}
+  {{ hidden_field }}
+{% endfor %}
+{% for field in form.visible_fields %}
+  <div>
+    {% if field.field.widget.input_type == "checkbox" %}
+      <label class="flex cursor-pointer items-start gap-3 text-sm leading-6 text-graphite" for="{{ field.id_for_label }}">
+        {{ field }}
+        <span>{{ field.label }}</span>
+      </label>
+    {% else %}
+      <label class="block text-[0.68rem] font-semibold uppercase tracking-[0.15em] text-graphite" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+    {% endif %}
+    {% if field.help_text %}<p class="mt-2 text-xs leading-5 text-graphite">{{ field.help_text }}</p>{% endif %}
+    {{ field.errors }}
+  </div>
+{% endfor %}

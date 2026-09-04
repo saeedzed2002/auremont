@@ -6,15 +6,18 @@ It currently contains **Phase 1 — Foundation**, **Phase 2 — Catalog**, and
 email-based user model, a Tailwind-built site shell, catalog administration,
 responsive browse/detail, brand, collection and search pages, filtering,
 sorting, pagination, lazy-loaded catalog images, fixtures, tests, and basic
-CI.
+CI. **Phase 4 — Accounts** adds email registration and confirmation, login,
+POST-only logout, password reset, profile editing, delivery-address management,
+and optional Google Sign-In configuration.
 
-Authentication flows, cart, checkout, orders, wishlist, and reviews are
-deliberately not implemented yet.
+Cart, checkout, orders, wishlist, and reviews are deliberately not implemented
+yet.
 
 ## Stack
 
 - Python 3.14.7
 - Django 6.1.1
+- django-allauth 65.19.2
 - PostgreSQL 18.6
 - Psycopg 3.3.5
 - Tailwind CSS 4.3.3
@@ -87,6 +90,33 @@ docker compose down
 
 `docker compose down -v` also deletes the local PostgreSQL volume and must only
 be used when resetting development data is intentional.
+
+## Accounts and Google Sign-In
+
+Account routes use Django's conventional `/accounts/` prefix:
+
+- `/accounts/signup/`
+- `/accounts/login/`
+- `/accounts/logout/`
+- `/accounts/password/reset/`
+- `/account/`
+
+Development email is printed to the Django console. In production, configure a
+real SMTP backend with `DJANGO_EMAIL_BACKEND`, `DJANGO_EMAIL_HOST`,
+`DJANGO_EMAIL_PORT`, `DJANGO_EMAIL_HOST_USER`, `DJANGO_EMAIL_HOST_PASSWORD`,
+and `DJANGO_EMAIL_USE_TLS`, as well as `DEFAULT_FROM_EMAIL`.
+
+Google Sign-In remains hidden until both `GOOGLE_OAUTH_CLIENT_ID` and
+`GOOGLE_OAUTH_CLIENT_SECRET` are set in `.env`. Create a Web OAuth client in
+Google Cloud Console, then register the local redirect URI below for this
+project's current route layout:
+
+```text
+http://127.0.0.1:8000/accounts/google/login/callback/
+```
+
+For a deployed environment, register its exact HTTPS callback URI too. Do not
+commit OAuth client secrets.
 
 ## Quality checks
 

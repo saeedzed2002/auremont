@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Sign out — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-xl px-5 py-16 sm:px-8 lg:py-24">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Auremont account</p>
+    <h1 class="mt-4 font-display text-5xl tracking-[-0.035em] text-charcoal">Sign out?</h1>
+    <p class="mt-5 text-base leading-7 text-graphite">Your account will be signed out on this device.</p>
+    <form class="mt-9" method="post" action="{% url 'account_logout' %}">
+      {% csrf_token %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+      <button class="rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Sign out</button>
+    </form>
+  </section>
+{% endblock %}

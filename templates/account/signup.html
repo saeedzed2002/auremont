@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Create an account — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-2xl px-5 py-16 sm:px-8 lg:py-24">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Private account</p>
+    <h1 class="mt-4 font-display text-5xl tracking-[-0.035em] text-charcoal sm:text-6xl">Begin your collection.</h1>
+    <p class="mt-5 max-w-xl text-base leading-7 text-graphite">Create an account with your email address. We will send a confirmation before the account can be used.</p>
+
+    <form class="account-form mt-10 space-y-5 border border-charcoal/15 bg-stone/45 p-6 sm:p-9" method="post" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% include "components/form_fields.html" with form=form %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+      <button class="mt-2 w-full rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Create account</button>
+    </form>
+    <p class="mt-6 text-sm text-graphite">Already registered? <a class="underline decoration-brass underline-offset-4 hover:text-charcoal" href="{% url 'account_login' %}">Sign in</a>.</p>
+  </section>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from .managers import UserManager
@@ -24,3 +25,29 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.email
+
+
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+    full_name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=32)
+    province = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+    address_line = models.TextField()
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_default", "-updated_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=Q(is_default=True),
+                name="accounts_one_default_address_per_user",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.full_name} — {self.city}"
