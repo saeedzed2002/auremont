@@ -8,10 +8,11 @@ responsive browse/detail, brand, collection and search pages, filtering,
 sorting, pagination, lazy-loaded catalog images, fixtures, tests, and basic
 CI. **Phase 4 — Accounts** adds email registration and confirmation, login,
 POST-only logout, password reset, profile editing, delivery-address management,
-and optional Google Sign-In configuration.
+and optional Google Sign-In configuration. **Phase 5 — Cart** adds guest and
+authenticated carts, server-calculated prices, stock-limited quantities,
+POST-only cart mutations, and cart merging when a guest signs in.
 
-Cart, checkout, orders, wishlist, and reviews are deliberately not implemented
-yet.
+Checkout, orders, wishlist, and reviews are deliberately not implemented yet.
 
 ## Stack
 
@@ -117,6 +118,14 @@ http://127.0.0.1:8000/accounts/google/login/callback/
 
 For a deployed environment, register its exact HTTPS callback URI too. Do not
 commit OAuth client secrets.
+
+## Cart
+
+Visitors can add available watches to `/cart/` before signing in. The cart keeps
+only watch identifiers and quantities; current prices and stock are read and
+validated on the server for every add or quantity update. When a customer signs
+in, the guest cart merges into that customer's cart and caps duplicate
+quantities at the current stock level.
 
 ## Quality checks
 

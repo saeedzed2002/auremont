@@ -37,6 +37,18 @@
           <p class="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">Currently unavailable</p>
         {% endif %}
 
+        {% if watch.stock %}
+          <form class="mt-8 flex flex-wrap items-end gap-4 border-y border-charcoal/15 py-6" method="post" action="{% url 'cart:add' watch.slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <label class="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-graphite" for="cart-quantity">
+              Quantity
+              <input id="cart-quantity" class="mt-2 block w-20 border border-charcoal/25 bg-ivory px-3 py-3 text-center text-sm text-charcoal outline-none focus:border-brass focus:ring-1 focus:ring-brass" type="number" name="quantity" value="1" min="1" max="{{ watch.stock }}" step="1">
+            </label>
+            <button class="rounded-sm bg-charcoal px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Add to cart</button>
+          </form>
+        {% endif %}
+
         <div class="mt-10 border-t border-charcoal/15 pt-8">
           <h2 class="font-display text-3xl tracking-[-0.02em] text-charcoal">Description</h2>
           <p class="mt-4 text-base leading-7 text-graphite">{{ watch.description|linebreaksbr }}</p>

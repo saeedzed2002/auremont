@@ -11,6 +11,7 @@
       <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:brand_list' %}">Brands</a>
       <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:collection_list' %}">Collections</a>
       <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:search' %}">Search</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'cart:detail' %}">Cart{% if cart_item_count %} ({{ cart_item_count }}){% endif %}</a>
     </nav>
 
     <div class="hidden items-center lg:flex">
@@ -35,6 +36,7 @@
       <a href="{% url 'catalog:brand_list' %}">Brands</a>
       <a href="{% url 'catalog:collection_list' %}">Collections</a>
       <a href="{% url 'catalog:search' %}">Search</a>
+      <a href="{% url 'cart:detail' %}">Cart{% if cart_item_count %} ({{ cart_item_count }}){% endif %}</a>
       {% if user.is_authenticated %}
         <a href="{% url 'accounts:dashboard' %}">Account</a>
         <form action="{% url 'account_logout' %}" method="post">

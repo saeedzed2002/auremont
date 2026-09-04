@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "apps.accounts",
     "apps.catalog",
+    "apps.cart.apps.CartConfig",
     "apps.core",
 ]
 
@@ -49,6 +50,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.accounts.context_processors.authentication",
+                "apps.cart.context_processors.cart",
             ],
         },
     },
@@ -99,6 +101,7 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_SIGNUP_FORM_CLASS = "apps.accounts.forms.AuremontSignupForm"
+ACCOUNT_ADAPTER = "apps.accounts.adapters.AuremontAccountAdapter"
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_DISPLAY = "apps.accounts.utils.user_display"

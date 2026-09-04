@@ -26,5 +26,15 @@
         <p class="text-xs text-graphite line-through">${{ watch.price|floatformat:0 }}</p>
       {% endif %}
     </div>
+    {% if watch.stock %}
+      <form class="mt-4" method="post" action="{% url 'cart:add' watch.slug %}">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1">
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="w-full rounded-sm border border-charcoal/25 px-3 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal hover:bg-stone focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Add to cart</button>
+      </form>
+    {% else %}
+      <p class="mt-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-graphite">Currently unavailable</p>
+    {% endif %}
   </div>
 </article>
