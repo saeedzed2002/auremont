@@ -54,6 +54,26 @@ are deliberately not implemented yet.
 
 Open `http://127.0.0.1:8000/`.
 
+## Run the development stack with Docker
+
+After creating `.env`, run the Django app and PostgreSQL together:
+
+```powershell
+docker compose up --build
+```
+
+The `web` container waits for PostgreSQL, applies migrations, then starts the
+Django development server at `http://127.0.0.1:8000/`.
+
+Use `Ctrl+C` to stop the foreground process. To stop the stack later, run:
+
+```powershell
+docker compose down
+```
+
+`docker compose down -v` also deletes the local PostgreSQL volume and must only
+be used when resetting development data is intentional.
+
 ## Quality checks
 
 ```powershell

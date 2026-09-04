@@ -1,0 +1,14 @@
+.git
+.github
+.idea
+.venv
+node_modules
+.env
+__pycache__
+*.py[cod]
+.coverage
+.ruff_cache
+.pytest_cache
+.tmp
+staticfiles
+media
