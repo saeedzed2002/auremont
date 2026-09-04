@@ -22,8 +22,11 @@ jobs:
         ports:
           - 5432:5432
     env:
-      DJANGO_SECRET_KEY: ci-only-secret-not-for-production
+      DJANGO_SECRET_KEY: ci-only-secret-key-with-ample-length-and-unique-characters-2026
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      DJANGO_CSRF_TRUSTED_ORIGINS: https://auremont.example
+      DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: "true"
+      DJANGO_SECURE_HSTS_PRELOAD: "true"
       DATABASE_URL: postgresql://auremont:postgres@127.0.0.1:5432/auremont
     steps:
       - uses: actions/checkout@v7
@@ -39,3 +42,5 @@ jobs:
         run: ruff check .
       - name: Run Django checks and tests
         run: python manage.py check && python manage.py test
+      - name: Validate production configuration
+        run: python manage.py check --deploy --settings=config.settings.production

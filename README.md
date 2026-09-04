@@ -21,8 +21,13 @@ merge adjustments, coupon failure rollback, payment errors, and concurrent
 stock allocation. **Phase 10 — Visual Polish** adds branded error pages,
 accessible form-error feedback, duplicate-submit feedback, mobile navigation
 refinement, canonical and Open Graph metadata, and reduced-motion-safe detail.
+**Phase 11 — Production Preparation** adds a `Gunicorn` application server,
+an `Nginx` reverse proxy, manifest-backed static delivery, persistent media and
+database volumes, a database-backed health endpoint, production environment
+templates, CI configuration validation, and operations guidance.
 
-The remaining planned work is production deployment.
+Public deployment still requires a domain, a trusted TLS terminator, DNS, SMTP
+credentials, and a backup destination.
 
 ## Stack
 
@@ -179,3 +184,11 @@ from that moderated set.
 The default settings module is `config.settings.development`. Production
 settings live in `config.settings.production` and must be selected explicitly
 through `DJANGO_SETTINGS_MODULE`.
+
+## Production preparation
+
+Production uses `compose.production.yaml`, `Gunicorn`, and `Nginx`. The
+production Compose file intentionally does not publish PostgreSQL. Copy
+`.env.production.example` to `.env.production`, replace every placeholder,
+then follow [the production operations guide](docs/production.md). Do not use
+the development `compose.yaml` for public traffic.

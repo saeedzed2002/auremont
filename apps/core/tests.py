@@ -29,6 +29,12 @@ class HomePageTests(TestCase):
             html=True,
         )
 
+    def test_healthcheck_confirms_database_connectivity(self) -> None:
+        response = self.client.get(reverse("core:healthz"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
+
 
 class ErrorPageTests(TestCase):
     @override_settings(DEBUG=False)

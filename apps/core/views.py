@@ -1,5 +1,8 @@
+from django.db import DatabaseError, connection
 from django.db.models import Count, Prefetch, Q
+from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.http import require_GET
 
 from apps.catalog.models import Collection, Watch, WatchImage
 
@@ -39,6 +42,16 @@ def home(request):
             .filter(watch_count__gt=0)[:3],
         },
     )
+
+
+@require_GET
+def healthz(request):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+    except DatabaseError:
+        return JsonResponse({"status": "unavailable"}, status=503)
+    return JsonResponse({"status": "ok"})
 
 
 def page_not_found(request, exception):
