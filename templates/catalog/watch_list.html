@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Watch Collection — Auremont{% endblock %}
+
+{% block content %}
+  <section class="border-b border-charcoal/15">
+    <div class="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Auremont / Collection</p>
+      <h1 class="mt-5 max-w-3xl font-display text-5xl leading-[0.95] tracking-[-0.035em] text-charcoal sm:text-7xl">Watches chosen for their lasting character.</h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-graphite">A considered edit of mechanical, automatic, and quartz watches. Auremont is an independent demonstration project and is not affiliated with the displayed brands.</p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10 lg:py-16" aria-labelledby="catalog-heading">
+    <div class="flex items-baseline justify-between gap-5 border-b border-charcoal/15 pb-5">
+      <h2 id="catalog-heading" class="font-display text-3xl tracking-[-0.02em] text-charcoal">The collection</h2>
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{{ watches|length }} piece{{ watches|pluralize }}</p>
+    </div>
+
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {% for watch in watches %}
+        {% include "components/watch_card.html" with watch=watch %}
+      {% empty %}
+        <p class="col-span-full border border-dashed border-charcoal/25 px-5 py-12 text-center text-sm text-graphite">The collection is being prepared. Please return soon.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

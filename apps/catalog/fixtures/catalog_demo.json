@@ -1,0 +1,166 @@
+[
+  {
+    "model": "catalog.brand",
+    "pk": 1,
+    "fields": {
+      "name": "Tudor",
+      "slug": "tudor",
+      "description": "Independent demonstration data only.",
+      "logo": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.brand",
+    "pk": 2,
+    "fields": {
+      "name": "Seiko",
+      "slug": "seiko",
+      "description": "Independent demonstration data only.",
+      "logo": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.brand",
+    "pk": 3,
+    "fields": {
+      "name": "Omega",
+      "slug": "omega",
+      "description": "Independent demonstration data only.",
+      "logo": "",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+      "name": "Diving",
+      "slug": "diving",
+      "description": "Purpose-built diving watches.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+      "name": "Classic",
+      "slug": "classic",
+      "description": "Enduring everyday silhouettes.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+      "name": "Chronograph",
+      "slug": "chronograph",
+      "description": "Timing instruments with character.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.collection",
+    "pk": 1,
+    "fields": {
+      "name": "New Arrivals",
+      "slug": "new-arrivals",
+      "description": "New additions to the demonstration catalog.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.collection",
+    "pk": 2,
+    "fields": {
+      "name": "Editor's Selection",
+      "slug": "editors-selection",
+      "description": "A concise editorial selection.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "catalog.watch",
+    "pk": 1,
+    "fields": {
+      "name": "Black Bay Fifty-Eight",
+      "slug": "tudor-black-bay-fifty-eight",
+      "sku": "DEMO-TUD-BB58-001",
+      "brand": 1,
+      "category": 1,
+      "collections": [1, 2],
+      "description": "A compact diving watch with a black dial, gilt details, and a domed crystal.",
+      "price": "4475.00",
+      "discount_price": null,
+      "stock": 3,
+      "movement": "automatic",
+      "case_material": "Stainless steel",
+      "case_diameter_mm": "39.0",
+      "strap_material": "Stainless steel bracelet",
+      "dial_color": "Black",
+      "water_resistance_m": 200,
+      "gender": "unisex",
+      "is_featured": true,
+      "is_active": true,
+      "created_at": "2026-09-04T00:00:00Z",
+      "updated_at": "2026-09-04T00:00:00Z"
+    }
+  },
+  {
+    "model": "catalog.watch",
+    "pk": 2,
+    "fields": {
+      "name": "Presage Cocktail Time",
+      "slug": "seiko-presage-cocktail-time",
+      "sku": "DEMO-SEI-PRE-001",
+      "brand": 2,
+      "category": 2,
+      "collections": [2],
+      "description": "A refined automatic dress watch with a textured silver dial and leather strap.",
+      "price": "575.00",
+      "discount_price": "495.00",
+      "stock": 8,
+      "movement": "automatic",
+      "case_material": "Stainless steel",
+      "case_diameter_mm": "40.5",
+      "strap_material": "Leather",
+      "dial_color": "Silver",
+      "water_resistance_m": 50,
+      "gender": "men",
+      "is_featured": true,
+      "is_active": true,
+      "created_at": "2026-09-03T00:00:00Z",
+      "updated_at": "2026-09-03T00:00:00Z"
+    }
+  },
+  {
+    "model": "catalog.watch",
+    "pk": 3,
+    "fields": {
+      "name": "Speedmaster Moonwatch",
+      "slug": "omega-speedmaster-moonwatch",
+      "sku": "DEMO-OME-SPD-001",
+      "brand": 3,
+      "category": 3,
+      "collections": [1, 2],
+      "description": "A manually wound chronograph with a black step dial and tachymeter scale.",
+      "price": "7600.00",
+      "discount_price": null,
+      "stock": 2,
+      "movement": "mechanical",
+      "case_material": "Stainless steel",
+      "case_diameter_mm": "42.0",
+      "strap_material": "Stainless steel bracelet",
+      "dial_color": "Black",
+      "water_resistance_m": 50,
+      "gender": "men",
+      "is_featured": false,
+      "is_active": true,
+      "created_at": "2026-09-02T00:00:00Z",
+      "updated_at": "2026-09-02T00:00:00Z"
+    }
+  }
+]

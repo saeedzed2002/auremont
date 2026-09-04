@@ -1,0 +1,30 @@
+<article class="group flex h-full flex-col border border-charcoal/15 bg-ivory">
+  <a class="block rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_detail' slug=watch.slug %}">
+    {% if watch.primary_image %}
+      <img class="aspect-square w-full object-cover" src="{{ watch.primary_image.image.url }}" alt="{{ watch.primary_image.alt_text|default:watch.name }}" loading="lazy">
+    {% else %}
+      <div class="relative grid aspect-square place-items-center overflow-hidden bg-stone" aria-hidden="true">
+        <div class="absolute inset-[14%] rounded-full border border-charcoal/20"></div>
+        <div class="watch-dial absolute inset-[6%] rounded-full"></div>
+        <div class="absolute inset-[25%] rounded-full border border-charcoal/30"></div>
+        <div class="absolute left-1/2 top-1/2 h-px w-[28%] origin-left -translate-y-1/2 rotate-[-35deg] bg-brass"></div>
+        <div class="absolute left-1/2 top-1/2 h-px w-[19%] origin-left -translate-y-1/2 rotate-[105deg] bg-charcoal"></div>
+        <span class="relative font-display text-xs tracking-[0.28em] text-charcoal/65">{{ watch.brand.name|upper }}</span>
+      </div>
+      <span class="sr-only">{{ watch.name }}</span>
+    {% endif %}
+  </a>
+  <div class="flex flex-1 flex-col px-5 py-5">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-brass">{{ watch.brand.name }}</p>
+    <h2 class="mt-2 font-display text-2xl tracking-[-0.02em] text-charcoal">
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_detail' slug=watch.slug %}">{{ watch.name }}</a>
+    </h2>
+    <p class="mt-3 text-sm text-graphite">{{ watch.get_movement_display }} · {{ watch.case_diameter_mm }} mm</p>
+    <div class="mt-5 flex items-baseline gap-3">
+      <p class="text-sm font-semibold text-charcoal">${{ watch.current_price|floatformat:0 }}</p>
+      {% if watch.discount_price %}
+        <p class="text-xs text-graphite line-through">${{ watch.price|floatformat:0 }}</p>
+      {% endif %}
+    </div>
+  </div>
+</article>

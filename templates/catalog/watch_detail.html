@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ watch.brand.name }} {{ watch.name }} — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10 lg:py-16">
+    <a class="inline-flex rounded-sm text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline decoration-brass underline-offset-4 focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">Back to collection</a>
+
+    <div class="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div class="grid gap-4 sm:grid-cols-2">
+        {% for image in watch.images.all %}
+          <img class="aspect-square w-full bg-stone object-cover" src="{{ image.image.url }}" alt="{{ image.alt_text|default:watch.name }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+        {% empty %}
+          <div class="relative grid aspect-square place-items-center overflow-hidden bg-stone sm:col-span-2" aria-hidden="true">
+            <div class="absolute inset-[12%] rounded-full border border-charcoal/20"></div>
+            <div class="watch-dial absolute inset-[4%] rounded-full"></div>
+            <div class="absolute inset-[24%] rounded-full border border-charcoal/30"></div>
+            <div class="absolute left-1/2 top-1/2 h-px w-[29%] origin-left -translate-y-1/2 rotate-[-35deg] bg-brass"></div>
+            <div class="absolute left-1/2 top-1/2 h-px w-[20%] origin-left -translate-y-1/2 rotate-[105deg] bg-charcoal"></div>
+            <span class="relative font-display text-sm tracking-[0.3em] text-charcoal/65">{{ watch.brand.name|upper }}</span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="max-w-xl lg:pt-4">
+        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">{{ watch.brand.name }} / {{ watch.category.name }}</p>
+        <h1 class="mt-4 font-display text-5xl leading-[0.95] tracking-[-0.035em] text-charcoal sm:text-7xl">{{ watch.name }}</h1>
+        <div class="mt-7 flex items-baseline gap-4">
+          <p class="text-xl font-semibold text-charcoal">${{ watch.current_price|floatformat:0 }}</p>
+          {% if watch.discount_price %}
+            <p class="text-sm text-graphite line-through">${{ watch.price|floatformat:0 }}</p>
+          {% endif %}
+        </div>
+        {% if watch.stock %}
+          <p class="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">Available to order</p>
+        {% else %}
+          <p class="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">Currently unavailable</p>
+        {% endif %}
+
+        <div class="mt-10 border-t border-charcoal/15 pt-8">
+          <h2 class="font-display text-3xl tracking-[-0.02em] text-charcoal">Description</h2>
+          <p class="mt-4 text-base leading-7 text-graphite">{{ watch.description|linebreaksbr }}</p>
+        </div>
+
+        <div class="mt-10 border-t border-charcoal/15 pt-8">
+          <h2 class="font-display text-3xl tracking-[-0.02em] text-charcoal">Specifications</h2>
+          <dl class="mt-5 divide-y divide-charcoal/15 border-y border-charcoal/15 text-sm">
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Movement</dt><dd class="text-charcoal">{{ watch.get_movement_display }}</dd></div>
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Case</dt><dd class="text-charcoal">{{ watch.case_material }}</dd></div>
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Diameter</dt><dd class="text-charcoal">{{ watch.case_diameter_mm }} mm</dd></div>
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Water resistance</dt><dd class="text-charcoal">{{ watch.water_resistance_m }} m</dd></div>
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Strap</dt><dd class="text-charcoal">{{ watch.strap_material }}</dd></div>
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Dial</dt><dd class="text-charcoal">{{ watch.dial_color }}</dd></div>
+            <div class="grid grid-cols-2 gap-4 py-4"><dt class="text-graphite">Designed for</dt><dd class="text-charcoal">{{ watch.get_gender_display }}</dd></div>
+          </dl>
+        </div>
+
+        {% if watch.collections.all %}
+          <div class="mt-8">
+            <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-brass">Collections</p>
+            <ul class="mt-3 flex flex-wrap gap-2">
+              {% for collection in watch.collections.all %}
+                <li class="border border-charcoal/20 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-graphite">{{ collection.name }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

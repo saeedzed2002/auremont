@@ -6,9 +6,8 @@
     </a>
 
     <nav class="hidden items-center gap-7 text-xs font-semibold uppercase tracking-[0.16em] text-graphite md:flex" aria-label="Primary navigation">
-      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#main-content">Home</a>
-      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#manifesto">Approach</a>
-      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#contact">Contact</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'core:home' %}">Home</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">Shop</a>
     </nav>
 
     <button class="rounded-sm p-2 text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass md:hidden" type="button" data-menu-button aria-expanded="false" aria-controls="mobile-navigation">
@@ -20,9 +19,8 @@
   </div>
   <nav id="mobile-navigation" class="hidden border-t border-charcoal/15 px-5 py-5 md:hidden" aria-label="Mobile navigation" data-mobile-menu>
     <div class="flex flex-col gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">
-      <a href="#main-content">Home</a>
-      <a href="#manifesto">Approach</a>
-      <a href="#contact">Contact</a>
+      <a href="{% url 'core:home' %}">Home</a>
+      <a href="{% url 'catalog:watch_list' %}">Shop</a>
     </div>
   </nav>
 </header>

@@ -1,11 +1,14 @@
 # Auremont
 
-Auremont is a Django luxury-watch store. This repository currently contains
-**Phase 1 — Foundation** only: project configuration, PostgreSQL, a custom
-email-based user model, a Tailwind-built site shell, tests, and basic CI.
+Auremont is an independent Django luxury-watch store demonstration project.
+It currently contains **Phase 1 — Foundation** and **Phase 2 — Catalog**:
+project configuration, PostgreSQL, a custom email-based user model, a
+Tailwind-built site shell, catalog administration, browse/detail pages,
+fixtures, tests, and basic CI.
 
-Catalog, authentication flows, cart, checkout, orders, wishlist, and reviews
-are deliberately not implemented yet.
+Authentication flows, cart, checkout, orders, wishlist, reviews, catalog
+search, filtering, sorting, and pagination are deliberately not implemented
+yet.
 
 ## Stack
 
@@ -53,6 +56,16 @@ are deliberately not implemented yet.
    ```
 
 Open `http://127.0.0.1:8000/`.
+
+## Catalog demo data
+
+After migrations, load the deliberately image-free catalog fixture. It uses
+real watch brand names only for portfolio demonstration; Auremont is not
+affiliated with those brands.
+
+```powershell
+.\.venv\Scripts\python manage.py loaddata catalog_demo
+```
 
 ## Run the development stack with Docker
 
