@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Auremont is an independent luxury watch store demonstration project.">
+    <meta property="og:site_name" content="Auremont">
+    <meta property="og:description" content="Time, Refined.">
+    {% if request %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endif %}
+    <title>{% block title %}Auremont — Time, Refined.{% endblock %}</title>
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    <script src="{% static 'js/site.js' %}" defer></script>
+  </head>
+  <body class="bg-ivory font-sans text-charcoal antialiased">
+    <a class="sr-only z-50 rounded bg-charcoal px-4 py-3 text-ivory focus:not-sr-only focus:absolute focus:left-4 focus:top-4" href="#main-content">Skip to content</a>
+    {% include "components/navbar.html" %}
+    <main id="main-content">
+      {% block content %}{% endblock %}
+    </main>
+    {% include "components/footer.html" %}
+  </body>
+</html>

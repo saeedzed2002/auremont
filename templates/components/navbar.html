@@ -1,0 +1,28 @@
+<header class="border-b border-charcoal/15 bg-ivory">
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
+    <a class="group inline-flex items-baseline gap-3 rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'core:home' %}">
+      <span class="font-display text-2xl tracking-[0.18em] text-charcoal sm:text-3xl">AUREMONT</span>
+      <span class="hidden border-l border-charcoal/25 pl-3 text-[0.58rem] font-semibold tracking-[0.22em] text-graphite sm:inline">TIME, REFINED.</span>
+    </a>
+
+    <nav class="hidden items-center gap-7 text-xs font-semibold uppercase tracking-[0.16em] text-graphite md:flex" aria-label="Primary navigation">
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#main-content">Home</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#manifesto">Approach</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#contact">Contact</a>
+    </nav>
+
+    <button class="rounded-sm p-2 text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass md:hidden" type="button" data-menu-button aria-expanded="false" aria-controls="mobile-navigation">
+      <span class="sr-only">Open navigation</span>
+      <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 7h16M4 12h16M4 17h16" />
+      </svg>
+    </button>
+  </div>
+  <nav id="mobile-navigation" class="hidden border-t border-charcoal/15 px-5 py-5 md:hidden" aria-label="Mobile navigation" data-mobile-menu>
+    <div class="flex flex-col gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">
+      <a href="#main-content">Home</a>
+      <a href="#manifesto">Approach</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>

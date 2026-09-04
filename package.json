@@ -1,0 +1,14 @@
+{
+  "name": "auremont",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Auremont frontend build tooling.",
+  "scripts": {
+    "build": "tailwindcss -i ./assets/css/input.css -o ./static/css/site.css --minify",
+    "watch": "tailwindcss -i ./assets/css/input.css -o ./static/css/site.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}

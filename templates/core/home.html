@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="relative overflow-hidden border-b border-charcoal/15">
+    <div class="mx-auto grid min-h-[34rem] max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:px-10 lg:py-24">
+      <div class="relative z-10 max-w-3xl">
+        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Independent watch edit</p>
+        <h1 class="mt-6 max-w-2xl font-display text-5xl leading-[0.9] tracking-[-0.035em] text-charcoal sm:text-7xl lg:text-8xl">Time,<br>Refined.</h1>
+        <p class="mt-8 max-w-md text-base leading-7 text-graphite">A deliberate foundation for a modern watch store—built around clarity, material detail, and an unhurried point of view.</p>
+        <a class="mt-10 inline-flex rounded-sm border border-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:bg-charcoal hover:text-ivory focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="#manifesto">Read the approach</a>
+      </div>
+      <div class="relative mx-auto aspect-square w-full max-w-md" aria-hidden="true">
+        <div class="absolute inset-[8%] rounded-full border border-charcoal/20"></div>
+        <div class="watch-dial absolute inset-0 rounded-full"></div>
+        <div class="absolute inset-[17%] rounded-full border border-charcoal/30"></div>
+        <div class="absolute left-1/2 top-1/2 h-[1px] w-[30%] origin-left -translate-y-1/2 rotate-[-25deg] bg-brass"></div>
+        <div class="absolute left-1/2 top-1/2 h-[1px] w-[22%] origin-left -translate-y-1/2 rotate-[115deg] bg-charcoal"></div>
+        <div class="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-charcoal bg-ivory"></div>
+        <span class="absolute inset-0 grid place-items-center font-display text-xs tracking-[0.35em] text-charcoal/65">AUREMONT</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="manifesto" class="bg-stone">
+    <div class="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 md:grid-cols-[0.8fr_1.2fr] lg:px-10 lg:py-20">
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Foundation / 01</p>
+      <div>
+        <h2 class="max-w-2xl font-display text-3xl leading-tight tracking-[-0.02em] text-charcoal sm:text-4xl">The groundwork is in place; the collection comes next.</h2>
+        <p class="mt-5 max-w-2xl text-sm leading-7 text-graphite">This initial release establishes the production-minded essentials: a PostgreSQL-backed Django project, custom email identity, environment-based configuration, and a responsive visual system.</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

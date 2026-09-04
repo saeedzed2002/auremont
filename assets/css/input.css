@@ -1,0 +1,44 @@
+@import "tailwindcss" source(none);
+
+@source "../../templates";
+@source "../../apps";
+
+@theme {
+  --color-charcoal: #141513;
+  --color-graphite: #4b4d48;
+  --color-ivory: #f5f2ea;
+  --color-stone: #e8e3d9;
+  --color-brass: #9a7b45;
+  --font-display: Iowan Old Style, Baskerville, Georgia, serif;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 20rem;
+  }
+
+  ::selection {
+    background: var(--color-brass);
+    color: var(--color-ivory);
+  }
+}
+
+@utility watch-dial {
+  background-image: repeating-conic-gradient(
+    from -1.5deg,
+    rgb(20 21 19 / 0.32) 0deg 0.55deg,
+    transparent 0.55deg 6deg
+  );
+  mask-image: radial-gradient(transparent 0 67%, #000 67.5%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
