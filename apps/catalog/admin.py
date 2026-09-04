@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Brand, Category, Collection, Watch, WatchImage
+from .models import Brand, Category, Collection, Review, Watch, WatchImage
 
 
 @admin.register(Brand)
@@ -62,3 +62,28 @@ class WatchAdmin(admin.ModelAdmin):
     @admin.display(ordering="price", description="Current price")
     def current_price(self, obj: Watch):
         return obj.current_price
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        "watch",
+        "user",
+        "rating",
+        "moderation_status",
+        "is_verified_purchase",
+        "created_at",
+    )
+    list_filter = ("moderation_status", "rating", "is_verified_purchase")
+    search_fields = ("watch__name", "watch__sku", "user__email", "comment")
+    list_select_related = ("watch", "user")
+    readonly_fields = (
+        "user",
+        "watch",
+        "rating",
+        "comment",
+        "is_verified_purchase",
+        "created_at",
+        "updated_at",
+    )
+    fields = (*readonly_fields, "moderation_status")

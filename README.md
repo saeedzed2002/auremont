@@ -15,7 +15,7 @@ Checkout & Orders** adds delivery-address selection or one-time entry, an order
 review, transaction-safe stock revalidation, order snapshots, mock payment
 outcomes, and customer order history.
 
-Reviews are deliberately not implemented yet.
+The remaining planned work is testing hardening, visual polish, and production deployment.
 
 ## Stack
 
@@ -152,6 +152,14 @@ coupon at a time and revalidates its active state, validity window, minimum
 order and fixed or percentage discount against the server-calculated subtotal
 both before payment and inside the order transaction. The redeemed code and
 discount are retained on the order as historical snapshots.
+
+## Reviews
+
+Only customers with a paid, processing, shipped, or delivered order containing a
+watch can submit one review for it. Those reviews are marked as verified
+purchases and remain private until a staff member approves them in the Django
+admin. Public product pages show only approved reviews and calculate ratings
+from that moderated set.
 
 ## Quality checks
 

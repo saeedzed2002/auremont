@@ -1,11 +1,20 @@
 from decimal import Decimal, InvalidOperation
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import DecimalField, Prefetch, Q
+from django.db.models import Avg, Count, DecimalField, Prefetch, Q
 from django.db.models.functions import Coalesce
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
-from .models import Brand, Category, Collection, Watch, WatchImage
+from .forms import ReviewForm
+from .models import Brand, Category, Collection, Review, Watch, WatchImage
+from .services import (
+    ReviewValidationError,
+    create_verified_review,
+    has_verified_purchase,
+)
 
 CATALOG_PAGE_SIZE = 9
 PRICE_FIELD = DecimalField(max_digits=12, decimal_places=2)
@@ -162,7 +171,43 @@ def watch_detail(request, slug: str):
         _active_watches().prefetch_related("collections", "images"),
         slug=slug,
     )
-    return render(request, "catalog/watch_detail.html", {"watch": watch})
+    return render(
+        request,
+        "catalog/watch_detail.html",
+        _watch_detail_context(request, watch),
+    )
+
+
+@login_required
+@require_POST
+def create_review(request, slug: str):
+    watch = get_object_or_404(
+        _active_watches().prefetch_related("collections", "images"),
+        slug=slug,
+    )
+    form = ReviewForm(request.POST)
+    if not form.is_valid():
+        return render(
+            request,
+            "catalog/watch_detail.html",
+            _watch_detail_context(request, watch, review_form=form),
+        )
+
+    try:
+        create_verified_review(
+            user=request.user,
+            watch=watch,
+            rating=form.cleaned_data["rating"],
+            comment=form.cleaned_data["comment"],
+        )
+    except ReviewValidationError as error:
+        messages.error(request, str(error))
+    else:
+        messages.success(
+            request,
+            "Your verified-purchase review is awaiting moderation.",
+        )
+    return redirect("catalog:watch_detail", slug=watch.slug)
 
 
 def brand_list(request):
@@ -244,3 +289,30 @@ def search(request):
     )
     context["search_query"] = query
     return render(request, "catalog/search.html", context)
+
+
+def _watch_detail_context(request, watch: Watch, *, review_form=None):
+    approved_reviews = watch.reviews.filter(
+        moderation_status=Review.ModerationStatus.APPROVED
+    ).select_related("user")
+    review_summary = approved_reviews.aggregate(
+        average_rating=Avg("rating"),
+        review_count=Count("pk"),
+    )
+    customer_review = None
+    can_review = False
+    if request.user.is_authenticated:
+        customer_review = watch.reviews.filter(user=request.user).first()
+        can_review = customer_review is None and has_verified_purchase(
+            request.user,
+            watch,
+        )
+
+    return {
+        "approved_reviews": approved_reviews,
+        "can_review": can_review,
+        "customer_review": customer_review,
+        "review_form": review_form or ReviewForm(),
+        "review_summary": review_summary,
+        "watch": watch,
+    }

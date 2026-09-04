@@ -1,6 +1,8 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -136,6 +138,55 @@ class Watch(models.Model):
     @property
     def primary_image(self):
         return next((image for image in self.images.all() if image.is_primary), None)
+
+
+class Review(models.Model):
+    class ModerationStatus(models.TextChoices):
+        PENDING = "pending", _("Awaiting moderation")
+        APPROVED = "approved", _("Approved")
+        REJECTED = "rejected", _("Rejected")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        db_index=False,
+    )
+    watch = models.ForeignKey(
+        Watch,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        db_index=False,
+    )
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comment = models.TextField()
+    is_verified_purchase = models.BooleanField(default=False, editable=False)
+    moderation_status = models.CharField(
+        max_length=12,
+        choices=ModerationStatus,
+        default=ModerationStatus.PENDING,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["watch", "moderation_status", "-created_at"])]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "watch"],
+                name="catalog_review_user_watch_unique",
+            ),
+            models.CheckConstraint(
+                condition=Q(rating__gte=1, rating__lte=5),
+                name="catalog_review_rating_between_one_and_five",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.watch} review by {self.user}"
 
 
 class WatchImage(models.Model):

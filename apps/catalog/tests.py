@@ -9,8 +9,9 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.accounts.models import User
+from apps.orders.models import Order, OrderItem
 
-from .models import Brand, Category, Collection, Watch, WatchImage
+from .models import Brand, Category, Collection, Review, Watch, WatchImage
 from .views import CATALOG_PAGE_SIZE
 
 
@@ -213,6 +214,166 @@ class CatalogViewTests(CatalogFactoryMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, watch.name)
+
+
+class ReviewFlowTests(CatalogFactoryMixin, TestCase):
+    password = "a-strong-test-password"
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            email="collector@example.com",
+            password=self.password,
+            full_name="Auremont Collector",
+        )
+        self.watch = self.create_watch()
+
+    def create_order(self, *, status: str = Order.Status.PAID) -> Order:
+        order = Order.objects.create(
+            user=self.user,
+            status=status,
+            subtotal=self.watch.current_price,
+            total=self.watch.current_price,
+            shipping_full_name="Auremont Collector",
+            shipping_phone="+98 21 0000 0000",
+            shipping_province="Tehran",
+            shipping_city="Tehran",
+            shipping_postal_code="1234567890",
+            shipping_address_line="12 Watchmaker Lane",
+        )
+        OrderItem.objects.create(
+            order=order,
+            watch=self.watch,
+            product_name=str(self.watch),
+            sku=self.watch.sku,
+            unit_price=self.watch.current_price,
+            quantity=1,
+            total_price=self.watch.current_price,
+        )
+        return order
+
+    def submit_review(self, **data):
+        payload = {
+            "rating": "5",
+            "comment": "A precise, comfortable watch with excellent proportions.",
+        }
+        payload.update(data)
+        return self.client.post(
+            reverse("catalog:review_create", kwargs={"slug": self.watch.slug}),
+            payload,
+        )
+
+    def test_review_submission_requires_authentication(self) -> None:
+        response = self.submit_review()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Review.objects.exists())
+
+    def test_only_customer_with_a_paid_order_can_submit_a_verified_review(self) -> None:
+        self.client.force_login(self.user)
+
+        response = self.submit_review()
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )
+        self.assertFalse(Review.objects.exists())
+
+        self.create_order()
+        response = self.submit_review()
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )
+        review = Review.objects.get(user=self.user, watch=self.watch)
+        self.assertTrue(review.is_verified_purchase)
+        self.assertEqual(review.moderation_status, Review.ModerationStatus.PENDING)
+
+    def test_cancelled_order_does_not_qualify_for_a_verified_review(self) -> None:
+        self.create_order(status=Order.Status.CANCELLED)
+        self.client.force_login(self.user)
+
+        response = self.submit_review()
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )
+        self.assertFalse(Review.objects.exists())
+
+    def test_pending_review_is_private_until_staff_approves_it(self) -> None:
+        self.create_order()
+        self.client.force_login(self.user)
+        self.submit_review(comment="An excellent review visible only after approval.")
+        review = Review.objects.get(user=self.user, watch=self.watch)
+
+        self.client.logout()
+        pending_response = self.client.get(
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug})
+        )
+        self.assertNotContains(
+            pending_response,
+            "An excellent review visible only after approval.",
+        )
+
+        review.moderation_status = Review.ModerationStatus.APPROVED
+        review.save(update_fields=["moderation_status", "updated_at"])
+        approved_response = self.client.get(
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug})
+        )
+
+        self.assertContains(
+            approved_response,
+            "An excellent review visible only after approval.",
+        )
+        self.assertContains(approved_response, "5.0/5")
+        self.assertContains(approved_response, "Verified purchase")
+
+    def test_customer_cannot_submit_a_second_review_for_the_same_watch(self) -> None:
+        self.create_order()
+        self.client.force_login(self.user)
+        self.submit_review()
+
+        response = self.submit_review(comment="A second review should not be stored.")
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )
+        self.assertEqual(
+            Review.objects.filter(user=self.user, watch=self.watch).count(), 1
+        )
+
+
+class ReviewModelTests(CatalogFactoryMixin, TestCase):
+    def test_review_database_constraints_protect_rating_and_uniqueness(self) -> None:
+        user = User.objects.create_user(
+            email="collector@example.com",
+            password="a-strong-test-password",
+        )
+        watch = self.create_watch()
+        Review.objects.create(
+            user=user,
+            watch=watch,
+            rating=5,
+            comment="A verified review created for database constraint coverage.",
+            is_verified_purchase=True,
+        )
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Review.objects.create(
+                user=user,
+                watch=watch,
+                rating=5,
+                comment="Duplicate review.",
+                is_verified_purchase=True,
+            )
+
+        review = Review.objects.get(user=user, watch=watch)
+        review.rating = 0
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            review.save(update_fields=["rating"])
 
 
 class CatalogFixtureTests(TestCase):
