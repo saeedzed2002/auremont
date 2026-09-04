@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Your orders — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-5xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Private account</p>
+    <div class="mt-4 flex flex-wrap items-end justify-between gap-5 border-b border-charcoal/15 pb-7">
+      <div>
+        <h1 class="font-display text-5xl tracking-[-0.035em] text-charcoal sm:text-6xl">Your orders.</h1>
+        <p class="mt-4 text-base leading-7 text-graphite">A record of confirmed pieces and their delivery details.</p>
+      </div>
+      <a class="text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline decoration-brass underline-offset-4 hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'accounts:dashboard' %}">Return to account</a>
+    </div>
+
+    <div class="mt-8 divide-y divide-charcoal/15 border-y border-charcoal/15">
+      {% for order in orders %}
+        <article class="flex flex-wrap items-center justify-between gap-5 py-6">
+          <div>
+            <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">{{ order.get_status_display }}</p>
+            <h2 class="mt-2 font-display text-3xl text-charcoal">{{ order.order_number }}</h2>
+            <p class="mt-2 text-sm text-graphite">{{ order.created_at|date:"F j, Y" }} · {{ order.items.count }} piece{{ order.items.count|pluralize }}</p>
+          </div>
+          <div class="flex items-center gap-6">
+            <p class="font-semibold text-charcoal">${{ order.total|floatformat:2 }}</p>
+            <a class="rounded-sm border border-charcoal/25 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'orders:detail' order.order_number %}">View order</a>
+          </div>
+        </article>
+      {% empty %}
+        <p class="px-5 py-14 text-center text-sm text-graphite">Confirmed orders will appear here after checkout.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

@@ -16,7 +16,7 @@
       </form>
     </div>
 
-    <div class="mt-10 grid gap-5 lg:grid-cols-2">
+    <div class="mt-10 grid gap-5 lg:grid-cols-3">
       <section class="border border-charcoal/15 p-6 sm:p-8" aria-labelledby="profile-heading">
         <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Profile</p>
         <h2 id="profile-heading" class="mt-3 font-display text-3xl text-charcoal">Your details</h2>
@@ -33,6 +33,13 @@
           <p class="mt-4 text-sm leading-6 text-graphite">No delivery address has been saved yet.</p>
         {% endif %}
         <a class="mt-7 inline-flex rounded-sm border border-charcoal/25 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'accounts:address_list' %}">Manage addresses</a>
+      </section>
+
+      <section class="border border-charcoal/15 p-6 sm:p-8" aria-labelledby="orders-heading">
+        <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Orders</p>
+        <h2 id="orders-heading" class="mt-3 font-display text-3xl text-charcoal">Your collection</h2>
+        <p class="mt-4 text-sm leading-6 text-graphite">Review confirmed orders and the delivery details captured for each one.</p>
+        <a class="mt-7 inline-flex rounded-sm border border-charcoal/25 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'orders:history' %}">View orders</a>
       </section>
     </div>
   </section>

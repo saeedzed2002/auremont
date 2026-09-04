@@ -10,9 +10,12 @@ CI. **Phase 4 — Accounts** adds email registration and confirmation, login,
 POST-only logout, password reset, profile editing, delivery-address management,
 and optional Google Sign-In configuration. **Phase 5 — Cart** adds guest and
 authenticated carts, server-calculated prices, stock-limited quantities,
-POST-only cart mutations, and cart merging when a guest signs in.
+POST-only cart mutations, and cart merging when a guest signs in. **Phase 6 —
+Checkout & Orders** adds delivery-address selection or one-time entry, an order
+review, transaction-safe stock revalidation, order snapshots, mock payment
+outcomes, and customer order history.
 
-Checkout, orders, wishlist, and reviews are deliberately not implemented yet.
+Wishlist and reviews are deliberately not implemented yet.
 
 ## Stack
 
@@ -126,6 +129,17 @@ only watch identifiers and quantities; current prices and stock are read and
 validated on the server for every add or quantity update. When a customer signs
 in, the guest cart merges into that customer's cart and caps duplicate
 quantities at the current stock level.
+
+## Checkout and orders
+
+Checkout requires authentication, validates the cart again before review and
+again while creating an order, then uses a controlled mock payment page. A
+successful simulation creates a paid order, snapshots product and delivery
+data, decrements stock inside the same database transaction, and clears the
+cart. A failed simulation changes none of those records.
+
+Shipping is deliberately set to complimentary insured delivery for the current
+portfolio version. No payment credentials are collected or transmitted.
 
 ## Quality checks
 

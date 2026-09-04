@@ -48,7 +48,12 @@
             <div class="flex items-center justify-between gap-4 border-t border-charcoal/15 pt-4 text-charcoal"><dt class="font-semibold">Subtotal</dt><dd class="font-semibold">${{ summary.subtotal|floatformat:2 }}</dd></div>
           </dl>
           <p class="mt-6 text-sm leading-6 text-graphite">Taxes and complimentary insured shipping will be confirmed during checkout.</p>
-          <p class="mt-6 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-graphite">Checkout arrives in the next phase.</p>
+          {% if user.is_authenticated %}
+            <a class="mt-6 flex w-full justify-center rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'orders:checkout' %}">Continue to checkout</a>
+          {% else %}
+            {% url 'orders:checkout' as checkout_url %}
+            <a class="mt-6 flex w-full justify-center rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'account_login' %}?next={{ checkout_url|urlencode }}">Sign in to check out</a>
+          {% endif %}
         </aside>
       </div>
     {% else %}

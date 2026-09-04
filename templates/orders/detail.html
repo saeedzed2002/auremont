@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Order {{ order.order_number }} — Auremont{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-5xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Order confirmed</p>
+    <div class="mt-4 flex flex-wrap items-end justify-between gap-5 border-b border-charcoal/15 pb-7">
+      <div>
+        <h1 class="font-display text-5xl tracking-[-0.035em] text-charcoal sm:text-6xl">{{ order.order_number }}</h1>
+        <p class="mt-4 text-base leading-7 text-graphite">Confirmed {{ order.created_at|date:"F j, Y" }} · {{ order.get_status_display }}</p>
+      </div>
+      <a class="text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline decoration-brass underline-offset-4 hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'orders:history' %}">All orders</a>
+    </div>
+
+    <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div class="divide-y divide-charcoal/15 border-y border-charcoal/15">
+        {% for item in order.items.all %}
+          <article class="py-6">
+            <div class="flex flex-wrap items-baseline justify-between gap-4">
+              <div>
+                <h2 class="font-display text-3xl text-charcoal">{{ item.product_name }}</h2>
+                <p class="mt-2 text-sm text-graphite">{{ item.sku }} · {{ item.quantity }} × ${{ item.unit_price|floatformat:2 }}</p>
+              </div>
+              <p class="font-semibold text-charcoal">${{ item.total_price|floatformat:2 }}</p>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <aside class="h-fit space-y-8 border border-charcoal/15 bg-stone/45 p-6 sm:p-8">
+        <section>
+          <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Delivery snapshot</p>
+          <address class="mt-4 not-italic text-sm leading-6 text-graphite">
+            <span class="font-semibold text-charcoal">{{ order.shipping_full_name }}</span><br>
+            {{ order.shipping_address_line|linebreaksbr }}<br>
+            {{ order.shipping_city }}, {{ order.shipping_province }} {{ order.shipping_postal_code }}<br>
+            {{ order.shipping_phone }}
+          </address>
+        </section>
+        <section class="border-t border-charcoal/15 pt-6">
+          <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Total</p>
+          <dl class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between gap-4 text-graphite"><dt>Subtotal</dt><dd>${{ order.subtotal|floatformat:2 }}</dd></div>
+            <div class="flex justify-between gap-4 text-graphite"><dt>Insured shipping</dt><dd>Complimentary</dd></div>
+            <div class="flex justify-between gap-4 border-t border-charcoal/15 pt-4 font-semibold text-charcoal"><dt>Total</dt><dd>${{ order.total|floatformat:2 }}</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </section>
+{% endblock %}
