@@ -1,14 +1,15 @@
 # Auremont
 
 Auremont is an independent Django luxury-watch store demonstration project.
-It currently contains **Phase 1 — Foundation** and **Phase 2 — Catalog**:
-project configuration, PostgreSQL, a custom email-based user model, a
-Tailwind-built site shell, catalog administration, browse/detail pages,
-fixtures, tests, and basic CI.
+It currently contains **Phase 1 — Foundation**, **Phase 2 — Catalog**, and
+**Phase 3 — Storefront UI**: project configuration, PostgreSQL, a custom
+email-based user model, a Tailwind-built site shell, catalog administration,
+responsive browse/detail, brand, collection and search pages, filtering,
+sorting, pagination, lazy-loaded catalog images, fixtures, tests, and basic
+CI.
 
-Authentication flows, cart, checkout, orders, wishlist, reviews, catalog
-search, filtering, sorting, and pagination are deliberately not implemented
-yet.
+Authentication flows, cart, checkout, orders, wishlist, and reviews are
+deliberately not implemented yet.
 
 ## Stack
 

@@ -1,0 +1,15 @@
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="mt-12 flex items-center justify-between border-t border-charcoal/15 pt-6 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal" aria-label="Pagination">
+    {% if page_obj.has_previous %}
+      <a class="rounded-sm underline decoration-brass underline-offset-4 focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+    {% else %}
+      <span class="text-charcoal/35">Previous</span>
+    {% endif %}
+    <span class="text-graphite">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a class="rounded-sm underline decoration-brass underline-offset-4 focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+    {% else %}
+      <span class="text-charcoal/35">Next</span>
+    {% endif %}
+  </nav>
+{% endif %}

@@ -37,6 +37,15 @@
   mask-image: radial-gradient(transparent 0 67%, #000 67.5%);
 }
 
+@utility watch-dial-light {
+  background-image: repeating-conic-gradient(
+    from -1.5deg,
+    rgb(245 242 234 / 0.28) 0deg 0.55deg,
+    transparent 0.55deg 6deg
+  );
+  mask-image: radial-gradient(transparent 0 67%, #000 67.5%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

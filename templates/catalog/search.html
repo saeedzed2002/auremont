@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Search Watches — Auremont{% endblock %}
+{% block meta_description %}Search the independent Auremont watch collection.{% endblock %}
+
+{% block content %}
+  <section class="border-b border-charcoal/15">
+    <div class="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">{{ eyebrow }}</p>
+      <h1 class="mt-5 max-w-3xl font-display text-5xl leading-[0.95] tracking-[-0.035em] text-charcoal sm:text-7xl">{{ heading }}</h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-graphite">{{ description }}</p>
+      <form class="mt-10 flex max-w-2xl gap-3" action="{% url 'catalog:search' %}" method="get" role="search">
+        <label class="sr-only" for="catalog-search">Search watches</label>
+        <input id="catalog-search" class="min-w-0 flex-1 border border-charcoal/30 bg-ivory px-4 py-4 text-base text-charcoal placeholder:text-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" name="q" type="search" value="{{ search_query }}" placeholder="Search by watch, brand, collection, or detail">
+        <button class="border border-charcoal bg-charcoal px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-ivory transition-colors hover:bg-brass hover:border-brass focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Search</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10 lg:py-16" aria-labelledby="search-results-heading">
+    {% if search_query %}
+      <div class="flex items-baseline justify-between gap-5 border-b border-charcoal/15 pb-5">
+        <h2 id="search-results-heading" class="font-display text-3xl tracking-[-0.02em] text-charcoal">Results for “{{ search_query }}”</h2>
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{{ page_obj.paginator.count }} match{{ page_obj.paginator.count|pluralize:"es" }}</p>
+      </div>
+      <div class="mt-8">{% include "components/catalog_filters.html" %}</div>
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {% for watch in page_obj %}
+          {% include "components/watch_card.html" with watch=watch %}
+        {% empty %}
+          <p class="col-span-full border border-dashed border-charcoal/25 px-5 py-12 text-center text-sm text-graphite">No watches match “{{ search_query }}”. Try a brand, collection, material, or model name.</p>
+        {% endfor %}
+      </div>
+      {% include "components/pagination.html" %}
+    {% else %}
+      <p class="border border-dashed border-charcoal/25 px-5 py-12 text-center text-sm text-graphite">Enter a watch, brand, collection, or specification to search the catalog.</p>
+    {% endif %}
+  </section>
+{% endblock %}

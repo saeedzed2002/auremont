@@ -1,0 +1,87 @@
+<details class="border-y border-charcoal/15 py-4"{% if selected %} open{% endif %}>
+  <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal">
+    Refine the collection
+    <span class="text-brass" aria-hidden="true">+</span>
+  </summary>
+  <form class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" method="get">
+    {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Brand
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="brand">
+        <option value="">All brands</option>
+        {% for brand in filter_options.brands %}<option value="{{ brand.slug }}"{% if selected.brand == brand.slug %} selected{% endif %}>{{ brand.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Category
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="category">
+        <option value="">All categories</option>
+        {% for category in filter_options.categories %}<option value="{{ category.slug }}"{% if selected.category == category.slug %} selected{% endif %}>{{ category.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Movement
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="movement">
+        <option value="">All movements</option>
+        {% for value, label in filter_options.movements %}<option value="{{ value }}"{% if selected.movement == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Designed for
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="gender">
+        <option value="">All designs</option>
+        {% for value, label in filter_options.genders %}<option value="{{ value }}"{% if selected.gender == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Dial color
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="dial_color">
+        <option value="">All dials</option>
+        {% for color in filter_options.dial_colors %}<option value="{{ color }}"{% if selected.dial_color == color %} selected{% endif %}>{{ color }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Strap material
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="strap_material">
+        <option value="">All straps</option>
+        {% for material in filter_options.strap_materials %}<option value="{{ material }}"{% if selected.strap_material == material %} selected{% endif %}>{{ material }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Water resistance
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="water_resistance">
+        <option value="">Any rating</option>
+        <option value="30"{% if selected.water_resistance == "30" %} selected{% endif %}>30 m or more</option>
+        <option value="50"{% if selected.water_resistance == "50" %} selected{% endif %}>50 m or more</option>
+        <option value="100"{% if selected.water_resistance == "100" %} selected{% endif %}>100 m or more</option>
+        <option value="200"{% if selected.water_resistance == "200" %} selected{% endif %}>200 m or more</option>
+      </select>
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Min. price
+      <input class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="min_price" type="number" min="0" step="1" value="{{ selected.min_price }}" inputmode="decimal">
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Max. price
+      <input class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="max_price" type="number" min="0" step="1" value="{{ selected.max_price }}" inputmode="decimal">
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Min. case size
+      <input class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="min_diameter" type="number" min="0" step="0.1" value="{{ selected.min_diameter }}" inputmode="decimal">
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Max. case size
+      <input class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="max_diameter" type="number" min="0" step="0.1" value="{{ selected.max_diameter }}" inputmode="decimal">
+    </label>
+    <label class="grid gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-graphite">
+      Order by
+      <select class="border border-charcoal/20 bg-ivory px-3 py-3 text-sm font-normal normal-case tracking-normal text-charcoal focus:outline-2 focus:outline-offset-2 focus:outline-brass" name="sort">
+        {% for value, label in sort_options %}<option value="{{ value }}"{% if selected.sort == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <div class="flex items-end gap-4">
+      <button class="inline-flex border border-charcoal bg-charcoal px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-ivory transition-colors hover:bg-brass hover:border-brass focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Apply</button>
+      <a class="pb-3 text-xs font-semibold uppercase tracking-[0.14em] text-graphite underline decoration-brass underline-offset-4 focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{{ request.path }}">Reset</a>
+    </div>
+  </form>
+</details>

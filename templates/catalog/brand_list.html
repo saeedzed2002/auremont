@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Watch Brands — Auremont{% endblock %}
+{% block meta_description %}Browse watch brands in the independent Auremont demonstration catalog.{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Auremont / Brands</p>
+    <h1 class="mt-5 max-w-3xl font-display text-5xl leading-[0.95] tracking-[-0.035em] text-charcoal sm:text-7xl">Brands with an enduring point of view.</h1>
+    <p class="mt-6 max-w-2xl text-base leading-7 text-graphite">Each name below is used solely for this independent demonstration catalog. Auremont is not an official retailer or affiliate.</p>
+    <ul class="mt-12 border-t border-charcoal/15">
+      {% for brand in brands %}
+        <li class="border-b border-charcoal/15">
+          <a class="group grid gap-3 px-1 py-7 sm:grid-cols-[1fr_auto] sm:items-baseline focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:brand_detail' slug=brand.slug %}">
+            <span class="font-display text-3xl tracking-[-0.02em] text-charcoal transition-colors group-hover:text-brass sm:text-4xl">{{ brand.name }}</span>
+            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">View selection <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      {% empty %}
+        <li class="py-7 text-sm text-graphite">No brands are currently available.</li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endblock %}

@@ -11,6 +11,7 @@ from django.urls import reverse
 from apps.accounts.models import User
 
 from .models import Brand, Category, Collection, Watch, WatchImage
+from .views import CATALOG_PAGE_SIZE
 
 
 class CatalogFactoryMixin:
@@ -136,6 +137,82 @@ class CatalogViewTests(CatalogFactoryMixin, TestCase):
         self.assertEqual(detail_response.status_code, 200)
         self.assertContains(detail_response, "Specifications")
         self.assertEqual(hidden_response.status_code, 404)
+
+    def test_catalog_filters_by_effective_price_and_sorts_results(self) -> None:
+        sale_watch = self.create_watch(discount_price=Decimal("3995.00"))
+        self.create_watch(
+            name="Pelagos",
+            slug="tudor-pelagos",
+            sku="TUD-PEL-001",
+            price=Decimal("6500.00"),
+        )
+        seiko = Brand.objects.create(name="Seiko", slug="seiko")
+        self.create_watch(
+            name="Presage",
+            slug="seiko-presage",
+            sku="SEI-PRE-001",
+            brand=seiko,
+            movement=Watch.Movement.QUARTZ,
+            price=Decimal("495.00"),
+        )
+
+        response = self.client.get(
+            reverse("catalog:watch_list"),
+            {
+                "brand": "tudor",
+                "movement": Watch.Movement.AUTOMATIC,
+                "max_price": "4000",
+                "sort": "price_asc",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(response.context["page_obj"].object_list), [sale_watch])
+
+    def test_search_matches_collections_and_hides_inactive_watches(self) -> None:
+        watch = self.create_watch()
+        collection = Collection.objects.create(
+            name="Diving Watches",
+            slug="diving-watches",
+        )
+        watch.collections.add(collection)
+        self.create_watch(
+            name="Hidden diver",
+            slug="hidden-diver",
+            sku="TUD-HIDDEN-002",
+            description="A diving watch that is not public.",
+            is_active=False,
+        )
+
+        response = self.client.get(reverse("catalog:search"), {"q": "Diving Watches"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, watch.name)
+        self.assertNotContains(response, "Hidden diver")
+
+    def test_catalog_paginates_large_result_sets(self) -> None:
+        for number in range(CATALOG_PAGE_SIZE + 1):
+            self.create_watch(
+                name=f"Watch {number}",
+                slug=f"watch-{number}",
+                sku=f"TUD-PAGE-{number:03}",
+            )
+
+        response = self.client.get(reverse("catalog:watch_list"), {"page": "2"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["page_obj"].number, 2)
+        self.assertEqual(len(response.context["page_obj"].object_list), 1)
+
+    def test_brand_page_lists_its_active_watches(self) -> None:
+        watch = self.create_watch()
+
+        response = self.client.get(
+            reverse("catalog:brand_detail", kwargs={"slug": watch.brand.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, watch.name)
 
 
 class CatalogFixtureTests(TestCase):

@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Auremont is an independent luxury watch store demonstration project.">
+    <meta name="description" content="{% block meta_description %}Auremont is an independent luxury watch store demonstration project.{% endblock %}">
     <meta property="og:site_name" content="Auremont">
     <meta property="og:description" content="Time, Refined.">
     {% if request %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endif %}

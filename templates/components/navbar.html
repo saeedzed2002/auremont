@@ -5,22 +5,28 @@
       <span class="hidden border-l border-charcoal/25 pl-3 text-[0.58rem] font-semibold tracking-[0.22em] text-graphite sm:inline">TIME, REFINED.</span>
     </a>
 
-    <nav class="hidden items-center gap-7 text-xs font-semibold uppercase tracking-[0.16em] text-graphite md:flex" aria-label="Primary navigation">
+    <nav class="hidden items-center gap-6 text-xs font-semibold uppercase tracking-[0.16em] text-graphite lg:flex" aria-label="Primary navigation">
       <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'core:home' %}">Home</a>
       <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">Shop</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:brand_list' %}">Brands</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:collection_list' %}">Collections</a>
+      <a class="rounded-sm transition-colors hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:search' %}">Search</a>
     </nav>
 
-    <button class="rounded-sm p-2 text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass md:hidden" type="button" data-menu-button aria-expanded="false" aria-controls="mobile-navigation">
+    <button class="rounded-sm p-2 text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass lg:hidden" type="button" data-menu-button aria-expanded="false" aria-controls="mobile-navigation">
       <span class="sr-only">Open navigation</span>
       <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>
     </button>
   </div>
-  <nav id="mobile-navigation" class="hidden border-t border-charcoal/15 px-5 py-5 md:hidden" aria-label="Mobile navigation" data-mobile-menu>
+  <nav id="mobile-navigation" class="hidden border-t border-charcoal/15 px-5 py-5 lg:hidden" aria-label="Mobile navigation" data-mobile-menu>
     <div class="flex flex-col gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">
       <a href="{% url 'core:home' %}">Home</a>
       <a href="{% url 'catalog:watch_list' %}">Shop</a>
+      <a href="{% url 'catalog:brand_list' %}">Brands</a>
+      <a href="{% url 'catalog:collection_list' %}">Collections</a>
+      <a href="{% url 'catalog:search' %}">Search</a>
     </div>
   </nav>
 </header>

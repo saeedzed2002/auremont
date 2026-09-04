@@ -1,32 +1,79 @@
 {% extends "base.html" %}
 
+{% block meta_description %}Auremont is an independent demonstration catalog for considered watches and their material details.{% endblock %}
+
 {% block content %}
-  <section class="relative overflow-hidden border-b border-charcoal/15">
-    <div class="mx-auto grid min-h-[34rem] max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:px-10 lg:py-24">
-      <div class="relative z-10 max-w-3xl">
+  <section class="relative overflow-hidden border-b border-charcoal/15 bg-charcoal text-ivory">
+    <div class="mx-auto grid min-h-[42rem] max-w-7xl items-end gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10 lg:py-20">
+      <div class="relative z-10 max-w-3xl pb-3 lg:pb-10">
         <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Independent watch edit</p>
-        <h1 class="mt-6 max-w-2xl font-display text-5xl leading-[0.9] tracking-[-0.035em] text-charcoal sm:text-7xl lg:text-8xl">Time,<br>Refined.</h1>
-        <p class="mt-8 max-w-md text-base leading-7 text-graphite">A deliberate foundation for a modern watch store—built around clarity, material detail, and an unhurried point of view.</p>
-        <a class="mt-10 inline-flex rounded-sm border border-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:bg-charcoal hover:text-ivory focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">Explore the collection</a>
+        <h1 class="mt-6 font-display text-6xl leading-[0.82] tracking-[-0.045em] sm:text-8xl">Time,<br>Refined.</h1>
+        <p class="mt-8 max-w-md text-base leading-7 text-ivory/70">A considered collection of watches chosen for proportion, movement, and material presence—not an endless product grid.</p>
+        <a class="mt-10 inline-flex border border-ivory px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-ivory transition-colors hover:border-brass hover:bg-brass focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">Shop the collection</a>
       </div>
-      <div class="relative mx-auto aspect-square w-full max-w-md" aria-hidden="true">
-        <div class="absolute inset-[8%] rounded-full border border-charcoal/20"></div>
-        <div class="watch-dial absolute inset-0 rounded-full"></div>
-        <div class="absolute inset-[17%] rounded-full border border-charcoal/30"></div>
-        <div class="absolute left-1/2 top-1/2 h-[1px] w-[30%] origin-left -translate-y-1/2 rotate-[-25deg] bg-brass"></div>
-        <div class="absolute left-1/2 top-1/2 h-[1px] w-[22%] origin-left -translate-y-1/2 rotate-[115deg] bg-charcoal"></div>
-        <div class="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-charcoal bg-ivory"></div>
-        <span class="absolute inset-0 grid place-items-center font-display text-xs tracking-[0.35em] text-charcoal/65">AUREMONT</span>
+      <div class="relative mx-auto aspect-square w-full max-w-xl self-center" aria-hidden="true">
+        <div class="absolute inset-[4%] rounded-full border border-ivory/20"></div>
+        <div class="watch-dial-light absolute inset-[1%] rounded-full"></div>
+        <div class="absolute inset-[16%] rounded-full border border-ivory/30"></div>
+        <div class="absolute left-1/2 top-1/2 h-px w-[34%] origin-left -translate-y-1/2 rotate-[-25deg] bg-brass"></div>
+        <div class="absolute left-1/2 top-1/2 h-px w-[23%] origin-left -translate-y-1/2 rotate-[115deg] bg-ivory"></div>
+        <div class="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ivory bg-charcoal"></div>
+        <span class="absolute inset-0 grid place-items-center font-display text-xs tracking-[0.4em] text-ivory/70">AUREMONT</span>
       </div>
     </div>
   </section>
 
-  <section id="manifesto" class="bg-stone">
-    <div class="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 md:grid-cols-[0.8fr_1.2fr] lg:px-10 lg:py-20">
-      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Foundation / 01</p>
+  <section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24" aria-labelledby="featured-heading">
+    <div class="grid gap-6 border-b border-charcoal/15 pb-7 sm:grid-cols-[1fr_auto] sm:items-end">
       <div>
-        <h2 class="max-w-2xl font-display text-3xl leading-tight tracking-[-0.02em] text-charcoal sm:text-4xl">A focused catalog, built on a sound foundation.</h2>
-        <p class="mt-5 max-w-2xl text-sm leading-7 text-graphite">Explore a deliberately small demonstration collection, each watch presented with its materials, movement, and proportions.</p>
+        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Selected instruments</p>
+        <h2 id="featured-heading" class="mt-3 font-display text-4xl tracking-[-0.025em] text-charcoal sm:text-5xl">Featured watches</h2>
+      </div>
+      <a class="text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline decoration-brass underline-offset-4 focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">See all watches</a>
+    </div>
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {% for watch in featured_watches %}
+        {% include "components/watch_card.html" with watch=watch %}
+      {% empty %}
+        <p class="col-span-full border border-dashed border-charcoal/25 px-5 py-12 text-center text-sm text-graphite">Featured watches will appear as the catalog grows.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="border-y border-charcoal/15 bg-stone">
+    <div class="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20" aria-labelledby="collections-heading">
+      <div class="flex items-baseline justify-between gap-5">
+        <div>
+          <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Editorial groupings</p>
+          <h2 id="collections-heading" class="mt-3 font-display text-4xl tracking-[-0.025em] text-charcoal sm:text-5xl">Find your point of view</h2>
+        </div>
+        <a class="hidden text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline decoration-brass underline-offset-4 focus:outline-2 focus:outline-offset-4 focus:outline-brass sm:block" href="{% url 'catalog:collection_list' %}">All collections</a>
+      </div>
+      <div class="mt-10 grid gap-px overflow-hidden border border-charcoal/15 bg-charcoal/15 md:grid-cols-3">
+        {% for collection in collections %}
+          <a class="group min-h-64 bg-stone px-6 py-7 transition-colors hover:bg-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:collection_detail' slug=collection.slug %}">
+            <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-brass">{{ collection.watch_count }} piece{{ collection.watch_count|pluralize }}</p>
+            <h3 class="mt-10 font-display text-4xl leading-[0.95] tracking-[-0.02em] text-charcoal transition-colors group-hover:text-ivory">{{ collection.name }}</h3>
+            <p class="mt-5 text-sm leading-6 text-graphite transition-colors group-hover:text-ivory/70">{{ collection.description }}</p>
+          </a>
+        {% empty %}
+          <p class="col-span-full bg-stone px-5 py-12 text-center text-sm text-graphite">Collections will appear as the catalog grows.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24" aria-labelledby="new-arrivals-heading">
+    <div class="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+      <div class="max-w-md">
+        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Latest additions</p>
+        <h2 id="new-arrivals-heading" class="mt-3 font-display text-4xl leading-[0.95] tracking-[-0.025em] text-charcoal sm:text-5xl">New arrivals, observed closely.</h2>
+        <p class="mt-5 text-sm leading-7 text-graphite">Every listing begins with the information that tells a watch apart: its scale, materials, movement, and intended use.</p>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-3">
+        {% for watch in new_arrivals %}
+          {% include "components/watch_card.html" with watch=watch %}
+        {% endfor %}
       </div>
     </div>
   </section>
