@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Django
+.env
+staticfiles/
+media/*
+!media/.gitkeep
+
+# Node
+node_modules/
+
+# Tooling
+.coverage
+htmlcov/
+.ruff_cache/
+.pytest_cache/
+.tmp/
