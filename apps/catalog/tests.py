@@ -2,12 +2,15 @@ from decimal import Decimal
 from io import StringIO
 
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Brand, Category, Watch, WatchImage
+from apps.accounts.models import User
+
+from .models import Brand, Category, Collection, Watch, WatchImage
 
 
 class CatalogFactoryMixin:
@@ -141,3 +144,73 @@ class CatalogFixtureTests(TestCase):
 
         self.assertEqual(Watch.objects.count(), 3)
         self.assertEqual(Watch.objects.filter(is_active=True).count(), 3)
+
+
+class CatalogAdminTests(TestCase):
+    def test_admin_can_create_a_watch_with_an_inline_image(self) -> None:
+        administrator = User.objects.create_superuser(
+            email="admin@example.com",
+            password="secure-admin-password",
+        )
+        brand = Brand.objects.create(name="Cartier", slug="cartier")
+        category = Category.objects.create(name="Classic", slug="classic")
+        collection = Collection.objects.create(
+            name="Editor's Selection",
+            slug="editors-selection",
+        )
+        image = SimpleUploadedFile(
+            "tank.png",
+            (
+                b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
+                b"\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
+                b"\x00\x00\x00\x0dIDATx\x9cc\xf8\xcf\xc0\xf0\x1f\x00\x05\x00"
+                b"\x01\xff\x89\x99=\x1d\x00\x00\x00\x00IEND\xaeB`\x82"
+            ),
+            content_type="image/png",
+        )
+        self.client.force_login(administrator)
+
+        with self.settings(
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
+                "staticfiles": {
+                    "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+                },
+            }
+        ):
+            response = self.client.post(
+                reverse("admin:catalog_watch_add"),
+                data={
+                    "name": "Tank Must",
+                    "slug": "cartier-tank-must",
+                    "sku": "CAR-TANK-001",
+                    "brand": brand.pk,
+                    "category": category.pk,
+                    "collections": [collection.pk],
+                    "description": "A compact quartz dress watch.",
+                    "price": "3450.00",
+                    "discount_price": "",
+                    "stock": "2",
+                    "movement": Watch.Movement.QUARTZ,
+                    "case_material": "Stainless steel",
+                    "case_diameter_mm": "33.7",
+                    "strap_material": "Leather",
+                    "dial_color": "Silver",
+                    "water_resistance_m": "30",
+                    "gender": Watch.Gender.UNISEX,
+                    "is_active": "on",
+                    "images-TOTAL_FORMS": "1",
+                    "images-INITIAL_FORMS": "0",
+                    "images-MIN_NUM_FORMS": "0",
+                    "images-MAX_NUM_FORMS": "1000",
+                    "images-0-image": image,
+                    "images-0-alt_text": "Cartier Tank Must front view",
+                    "images-0-position": "0",
+                    "images-0-is_primary": "on",
+                },
+            )
+
+        watch = Watch.objects.get(slug="cartier-tank-must")
+        self.assertRedirects(response, reverse("admin:catalog_watch_changelist"))
+        self.assertEqual(watch.images.count(), 1)
+        self.assertTrue(watch.primary_image.is_primary)
