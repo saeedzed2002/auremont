@@ -7,7 +7,7 @@ from apps.cart.models import Cart, CartItem
 from apps.cart.services import CartSummary, calculate_cart_summary
 from apps.catalog.models import Watch
 
-from .models import Order, OrderItem
+from .models import Coupon, Order, OrderItem, normalize_coupon_code
 
 COMPLIMENTARY_SHIPPING = Decimal("0.00")
 REQUIRED_SHIPPING_FIELDS = (
@@ -24,21 +24,55 @@ class CheckoutValidationError(Exception):
     pass
 
 
+class CouponValidationError(CheckoutValidationError):
+    pass
+
+
 @dataclass(frozen=True)
 class CheckoutSummary:
     cart_summary: CartSummary
+    coupon: Coupon | None
+    discount: Decimal
     shipping_cost: Decimal
     total: Decimal
 
 
-def checkout_summary(cart: Cart | None) -> CheckoutSummary:
+def checkout_summary(
+    cart: Cart | None,
+    *,
+    coupon_code: str | None = None,
+) -> CheckoutSummary:
     validate_cart_for_checkout(cart)
     cart_summary = calculate_cart_summary(cart)
+    coupon, discount = apply_coupon(coupon_code, cart_summary.subtotal)
     return CheckoutSummary(
         cart_summary=cart_summary,
+        coupon=coupon,
+        discount=discount,
         shipping_cost=COMPLIMENTARY_SHIPPING,
-        total=cart_summary.subtotal + COMPLIMENTARY_SHIPPING,
+        total=cart_summary.subtotal - discount + COMPLIMENTARY_SHIPPING,
     )
+
+
+def apply_coupon(
+    coupon_code: str | None,
+    subtotal: Decimal,
+    *,
+    lock: bool = False,
+) -> tuple[Coupon | None, Decimal]:
+    if not coupon_code:
+        return None, Decimal("0.00")
+
+    code = normalize_coupon_code(coupon_code)
+    coupons = Coupon.objects.select_for_update() if lock else Coupon.objects
+    coupon = coupons.filter(code=code).first()
+    if coupon is None:
+        raise CouponValidationError("This coupon code is not valid.")
+
+    validation_error = coupon.validation_error_for(subtotal)
+    if validation_error:
+        raise CouponValidationError(validation_error)
+    return coupon, coupon.discount_for(subtotal)
 
 
 def validate_cart_for_checkout(cart: Cart | None) -> None:
@@ -67,6 +101,7 @@ def create_paid_order(
     user,
     cart: Cart | None,
     shipping_address: dict[str, str],
+    coupon_code: str | None = None,
 ) -> Order:
     _validate_shipping_address(shipping_address)
     if cart is None:
@@ -124,13 +159,15 @@ def create_paid_order(
                 )
             )
 
+        coupon, discount = apply_coupon(coupon_code, subtotal, lock=True)
         order = Order.objects.create(
             user=user,
             status=Order.Status.PAID,
             subtotal=subtotal,
-            discount=Decimal("0.00"),
+            discount=discount,
+            coupon_code=coupon.code if coupon else "",
             shipping_cost=COMPLIMENTARY_SHIPPING,
-            total=subtotal + COMPLIMENTARY_SHIPPING,
+            total=subtotal - discount + COMPLIMENTARY_SHIPPING,
             shipping_full_name=shipping_address["full_name"],
             shipping_phone=shipping_address["phone"],
             shipping_province=shipping_address["province"],

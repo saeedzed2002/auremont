@@ -12,6 +12,7 @@
       <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Amount</p>
       <p class="mt-3 font-display text-5xl text-charcoal">${{ summary.total|floatformat:2 }}</p>
       <p class="mt-5 text-sm leading-6 text-graphite">{{ summary.cart_summary.item_count }} selected piece{{ summary.cart_summary.item_count|pluralize }} · complimentary insured shipping</p>
+      {% if summary.coupon %}<p class="mt-2 text-sm text-graphite">{{ summary.coupon.code }} saves ${{ summary.discount|floatformat:2 }}</p>{% endif %}
       <form class="mt-8 grid gap-3" method="post">
         {% csrf_token %}
         <button class="rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" name="outcome" value="success" type="submit">Simulate successful payment</button>

@@ -37,9 +37,29 @@
           </address>
         </section>
         <section class="border-t border-charcoal/15 pt-6">
+          <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Coupon</p>
+          {% if summary.coupon %}
+            <div class="mt-4 flex items-center justify-between gap-4 border border-brass/40 px-3 py-3 text-sm">
+              <p class="font-semibold text-charcoal">{{ summary.coupon.code }}</p>
+              <form method="post">
+                {% csrf_token %}
+                <button class="text-xs font-semibold uppercase tracking-[0.14em] text-graphite underline decoration-brass underline-offset-4 hover:text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit" name="action" value="remove_coupon">Remove</button>
+              </form>
+            </div>
+          {% else %}
+            <form class="mt-4 flex gap-2" method="post">
+              {% csrf_token %}
+              <label class="sr-only" for="{{ coupon_form.code.id_for_label }}">Coupon code</label>
+              <input id="{{ coupon_form.code.id_for_label }}" class="min-w-0 flex-1 border border-charcoal/25 bg-ivory px-3 py-2 text-sm text-charcoal outline-none focus:border-brass focus:ring-1 focus:ring-brass" type="text" name="{{ coupon_form.code.html_name }}" value="{{ coupon_form.code.value|default:'' }}" maxlength="32" autocomplete="off" placeholder="Coupon code">
+              <button class="rounded-sm border border-charcoal/25 px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:border-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit" name="action" value="apply_coupon">Apply</button>
+            </form>
+          {% endif %}
+        </section>
+        <section class="border-t border-charcoal/15 pt-6">
           <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Total</p>
           <dl class="mt-4 space-y-3 text-sm">
             <div class="flex justify-between gap-4 text-graphite"><dt>Subtotal</dt><dd>${{ summary.cart_summary.subtotal|floatformat:2 }}</dd></div>
+            {% if summary.discount %}<div class="flex justify-between gap-4 text-graphite"><dt>Discount{% if summary.coupon %} · {{ summary.coupon.code }}{% endif %}</dt><dd>−${{ summary.discount|floatformat:2 }}</dd></div>{% endif %}
             <div class="flex justify-between gap-4 text-graphite"><dt>Insured shipping</dt><dd>Complimentary</dd></div>
             <div class="flex justify-between gap-4 border-t border-charcoal/15 pt-4 font-semibold text-charcoal"><dt>Total</dt><dd>${{ summary.total|floatformat:2 }}</dd></div>
           </dl>

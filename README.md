@@ -15,7 +15,7 @@ Checkout & Orders** adds delivery-address selection or one-time entry, an order
 review, transaction-safe stock revalidation, order snapshots, mock payment
 outcomes, and customer order history.
 
-Wishlist and reviews are deliberately not implemented yet.
+Reviews are deliberately not implemented yet.
 
 ## Stack
 
@@ -140,6 +140,18 @@ cart. A failed simulation changes none of those records.
 
 Shipping is deliberately set to complimentary insured delivery for the current
 portfolio version. No payment credentials are collected or transmitted.
+
+## Wishlist and coupons
+
+Authenticated customers can save or remove available watches from their
+wishlist on cards and product pages, then revisit the dedicated `/wishlist/`
+page. Wishlist data is private to each customer.
+
+Staff can create active coupon codes in the Django admin. Checkout accepts one
+coupon at a time and revalidates its active state, validity window, minimum
+order and fixed or percentage discount against the server-calculated subtotal
+both before payment and inside the order transaction. The redeemed code and
+discount are retained on the order as historical snapshots.
 
 ## Quality checks
 

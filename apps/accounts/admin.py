@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Address, User
+from .models import Address, User, WishlistItem
 
 
 class AddressInline(admin.TabularInline):
@@ -54,3 +54,11 @@ class AddressAdmin(admin.ModelAdmin):
     list_filter = ("is_default", "province")
     search_fields = ("full_name", "user__email", "city", "postal_code")
     list_select_related = ("user",)
+
+
+@admin.register(WishlistItem)
+class WishlistItemAdmin(admin.ModelAdmin):
+    list_display = ("watch", "user", "created_at")
+    search_fields = ("watch__name", "watch__sku", "user__email")
+    list_select_related = ("watch", "user")
+    readonly_fields = ("created_at",)

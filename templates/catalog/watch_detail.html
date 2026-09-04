@@ -49,6 +49,20 @@
           </form>
         {% endif %}
 
+        {% if user.is_authenticated %}
+          <form class="mt-5" method="post" action="{% url 'accounts:wishlist_toggle' watch.slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="inline-flex items-center gap-2 rounded-sm border border-charcoal/25 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal hover:bg-stone focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit" aria-pressed="{% if watch.pk in wishlist_watch_ids %}true{% else %}false{% endif %}">
+              <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="{% if watch.pk in wishlist_watch_ids %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" /></svg>
+              {% if watch.pk in wishlist_watch_ids %}Remove from wishlist{% else %}Save to wishlist{% endif %}
+            </button>
+          </form>
+        {% else %}
+          {% url 'catalog:watch_detail' watch.slug as watch_url %}
+          <a class="mt-5 inline-flex rounded-sm border border-charcoal/25 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal hover:bg-stone focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'account_login' %}?next={{ watch_url|urlencode }}">Sign in to save</a>
+        {% endif %}
+
         <div class="mt-10 border-t border-charcoal/15 pt-8">
           <h2 class="font-display text-3xl tracking-[-0.02em] text-charcoal">Description</h2>
           <p class="mt-4 text-base leading-7 text-graphite">{{ watch.description|linebreaksbr }}</p>

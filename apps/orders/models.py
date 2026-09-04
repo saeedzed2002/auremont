@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from uuid import uuid4
 
 from django.conf import settings
@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from apps.catalog.models import Watch
 
@@ -51,6 +52,7 @@ class Order(models.Model):
         decimal_places=2,
         default=Decimal("0.00"),
     )
+    coupon_code = models.CharField(max_length=32, blank=True)
     shipping_cost = models.DecimalField(
         max_digits=12,
         decimal_places=2,
@@ -79,12 +81,24 @@ class Order(models.Model):
                 name="orders_discount_non_negative",
             ),
             models.CheckConstraint(
+                condition=Q(discount__lte=models.F("subtotal")),
+                name="orders_discount_not_above_subtotal",
+            ),
+            models.CheckConstraint(
                 condition=Q(shipping_cost__gte=Decimal("0.00")),
                 name="orders_shipping_cost_non_negative",
             ),
             models.CheckConstraint(
                 condition=Q(total__gte=Decimal("0.00")),
                 name="orders_total_non_negative",
+            ),
+            models.CheckConstraint(
+                condition=Q(
+                    total=models.F("subtotal")
+                    - models.F("discount")
+                    + models.F("shipping_cost")
+                ),
+                name="orders_total_matches_components",
             ),
         ]
 
@@ -98,6 +112,113 @@ class Order(models.Model):
             )
         self.status = status
         self.save(update_fields=["status", "updated_at"])
+
+
+class Coupon(models.Model):
+    class DiscountType(models.TextChoices):
+        FIXED = "fixed", "Fixed amount"
+        PERCENTAGE = "percentage", "Percentage"
+
+    code = models.CharField(max_length=32, unique=True)
+    discount_type = models.CharField(max_length=12, choices=DiscountType)
+    value = models.DecimalField(max_digits=12, decimal_places=2)
+    minimum_order = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+    )
+    valid_from = models.DateTimeField(null=True, blank=True)
+    valid_until = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["code"]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    Q(discount_type="fixed", value__gt=Decimal("0.00"))
+                    | Q(
+                        discount_type="percentage",
+                        value__gt=Decimal("0.00"),
+                        value__lte=Decimal("100.00"),
+                    )
+                ),
+                name="orders_coupon_value_valid",
+            ),
+            models.CheckConstraint(
+                condition=Q(minimum_order__gte=Decimal("0.00")),
+                name="orders_coupon_minimum_order_non_negative",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    Q(valid_from__isnull=True)
+                    | Q(valid_until__isnull=True)
+                    | Q(valid_until__gt=models.F("valid_from"))
+                ),
+                name="orders_coupon_validity_window_valid",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.code
+
+    def clean(self) -> None:
+        super().clean()
+        self.code = normalize_coupon_code(self.code)
+        errors = {}
+        if self.value is not None:
+            if self.value <= 0:
+                errors["value"] = "Coupon value must be greater than zero."
+            elif (
+                self.discount_type == self.DiscountType.PERCENTAGE
+                and self.value > Decimal("100.00")
+            ):
+                errors["value"] = "Percentage discounts cannot exceed 100%."
+        if self.minimum_order is not None and self.minimum_order < 0:
+            errors["minimum_order"] = "Minimum order cannot be negative."
+        if self.valid_from and self.valid_until and self.valid_until <= self.valid_from:
+            errors["valid_until"] = "Expiry must be later than the start time."
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs) -> None:
+        self.code = normalize_coupon_code(self.code)
+        super().save(*args, **kwargs)
+
+    def validation_error_for(
+        self,
+        subtotal: Decimal,
+        *,
+        at=None,
+    ) -> str | None:
+        current_time = at or timezone.now()
+        if not self.is_active:
+            return "This coupon is no longer active."
+        if self.valid_from and current_time < self.valid_from:
+            return "This coupon is not active yet."
+        if self.valid_until and current_time >= self.valid_until:
+            return "This coupon has expired."
+        if subtotal < self.minimum_order:
+            return (
+                f"This coupon requires an order of at least ${self.minimum_order:.2f}."
+            )
+        return None
+
+    def discount_for(self, subtotal: Decimal) -> Decimal:
+        if self.discount_type == self.DiscountType.PERCENTAGE:
+            discount = (subtotal * self.value / Decimal("100.00")).quantize(
+                Decimal("0.01"),
+                rounding=ROUND_HALF_UP,
+            )
+        else:
+            discount = self.value
+        return min(discount, subtotal)
+
+
+def normalize_coupon_code(code: str) -> str:
+    return code.strip().upper()
 
 
 class OrderItem(models.Model):

@@ -26,15 +26,27 @@
         <p class="text-xs text-graphite line-through">${{ watch.price|floatformat:0 }}</p>
       {% endif %}
     </div>
-    {% if watch.stock %}
-      <form class="mt-4" method="post" action="{% url 'cart:add' watch.slug %}">
-        {% csrf_token %}
-        <input type="hidden" name="quantity" value="1">
-        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button class="w-full rounded-sm border border-charcoal/25 px-3 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal hover:bg-stone focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Add to cart</button>
-      </form>
-    {% else %}
-      <p class="mt-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-graphite">Currently unavailable</p>
-    {% endif %}
+    <div class="mt-4 grid gap-3 {% if user.is_authenticated and watch.stock %}sm:grid-cols-[minmax(0,1fr)_auto]{% endif %}">
+      {% if watch.stock %}
+        <form method="post" action="{% url 'cart:add' watch.slug %}">
+          {% csrf_token %}
+          <input type="hidden" name="quantity" value="1">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="w-full rounded-sm border border-charcoal/25 px-3 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal hover:bg-stone focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Add to cart</button>
+        </form>
+      {% else %}
+        <p class="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-graphite">Currently unavailable</p>
+      {% endif %}
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'accounts:wishlist_toggle' watch.slug %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="flex w-full items-center justify-center gap-2 rounded-sm border border-charcoal/25 px-3 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal hover:bg-stone focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit" aria-pressed="{% if watch.pk in wishlist_watch_ids %}true{% else %}false{% endif %}">
+            <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="{% if watch.pk in wishlist_watch_ids %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" /></svg>
+            {% if watch.pk in wishlist_watch_ids %}Saved{% else %}Save{% endif %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
   </div>
 </article>

@@ -1,10 +1,15 @@
+from decimal import Decimal
+
 from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import Address
+from apps.catalog.models import Brand, Category, Watch
+
+from .models import Address, WishlistItem
 
 
 class UserModelTests(TestCase):
@@ -178,3 +183,78 @@ class AccountFlowTests(TestCase):
         self.assertRedirects(response, reverse("accounts:address_list"))
         replacement.refresh_from_db()
         self.assertTrue(replacement.is_default)
+
+
+class WishlistFlowTests(TestCase):
+    password = "a-strong-test-password"
+
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(
+            email="collector@example.com",
+            password=self.password,
+        )
+        self.other_user = get_user_model().objects.create_user(
+            email="other@example.com",
+            password=self.password,
+        )
+        brand = Brand.objects.create(name="Tudor", slug="tudor")
+        category = Category.objects.create(name="Diving", slug="diving")
+        self.watch = Watch.objects.create(
+            name="Black Bay Fifty-Eight",
+            slug="tudor-black-bay-fifty-eight",
+            sku="TUD-BB58-001",
+            brand=brand,
+            category=category,
+            description="A compact automatic diving watch.",
+            price=Decimal("4475.00"),
+            stock=3,
+            movement=Watch.Movement.AUTOMATIC,
+            case_material="Stainless steel",
+            case_diameter_mm=Decimal("39.0"),
+            strap_material="Stainless steel bracelet",
+            dial_color="Black",
+            water_resistance_m=200,
+        )
+
+    def test_wishlist_requires_authentication(self) -> None:
+        response = self.client.get(reverse("accounts:wishlist"))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_customer_can_save_and_remove_a_watch_from_their_wishlist(self) -> None:
+        self.client.force_login(self.user)
+        toggle_url = reverse(
+            "accounts:wishlist_toggle",
+            kwargs={"slug": self.watch.slug},
+        )
+
+        response = self.client.post(toggle_url)
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )
+        self.assertTrue(
+            WishlistItem.objects.filter(user=self.user, watch=self.watch).exists()
+        )
+        wishlist_response = self.client.get(reverse("accounts:wishlist"))
+        self.assertContains(wishlist_response, self.watch.name)
+        self.assertContains(wishlist_response, "Saved")
+
+        response = self.client.post(toggle_url)
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:watch_detail", kwargs={"slug": self.watch.slug}),
+        )
+        self.assertFalse(WishlistItem.objects.filter(user=self.user).exists())
+
+    def test_wishlist_entries_are_unique_and_private_to_the_customer(self) -> None:
+        WishlistItem.objects.create(user=self.other_user, watch=self.watch)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            WishlistItem.objects.create(user=self.other_user, watch=self.watch)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("accounts:wishlist"))
+
+        self.assertNotContains(response, self.watch.name)

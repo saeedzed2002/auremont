@@ -42,6 +42,7 @@
           <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Total</p>
           <dl class="mt-4 space-y-3 text-sm">
             <div class="flex justify-between gap-4 text-graphite"><dt>Subtotal</dt><dd>${{ order.subtotal|floatformat:2 }}</dd></div>
+            {% if order.discount %}<div class="flex justify-between gap-4 text-graphite"><dt>Discount{% if order.coupon_code %} · {{ order.coupon_code }}{% endif %}</dt><dd>−${{ order.discount|floatformat:2 }}</dd></div>{% endif %}
             <div class="flex justify-between gap-4 text-graphite"><dt>Insured shipping</dt><dd>Complimentary</dd></div>
             <div class="flex justify-between gap-4 border-t border-charcoal/15 pt-4 font-semibold text-charcoal"><dt>Total</dt><dd>${{ order.total|floatformat:2 }}</dd></div>
           </dl>

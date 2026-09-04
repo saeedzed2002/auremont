@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, OrderItem
+from .models import Coupon, Order, OrderItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -32,6 +32,7 @@ class OrderAdmin(admin.ModelAdmin):
         "status",
         "subtotal",
         "discount",
+        "coupon_code",
         "shipping_cost",
         "total",
         "shipping_full_name",
@@ -47,3 +48,19 @@ class OrderAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request) -> bool:
         return False
+
+
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = (
+        "code",
+        "discount_type",
+        "value",
+        "minimum_order",
+        "is_active",
+        "valid_from",
+        "valid_until",
+    )
+    list_filter = ("discount_type", "is_active")
+    search_fields = ("code",)
+    readonly_fields = ("created_at", "updated_at")

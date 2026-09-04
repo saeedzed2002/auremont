@@ -4,6 +4,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from apps.catalog.models import Watch
+
 from .managers import UserManager
 
 
@@ -51,3 +53,32 @@ class Address(models.Model):
 
     def __str__(self) -> str:
         return f"{self.full_name} — {self.city}"
+
+
+class WishlistItem(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="wishlist_items",
+        db_index=False,
+    )
+    watch = models.ForeignKey(
+        Watch,
+        on_delete=models.CASCADE,
+        related_name="wishlist_items",
+        db_index=False,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "watch"],
+                name="accounts_wishlist_user_watch_unique",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} saved {self.watch}"

@@ -2,6 +2,8 @@ from django import forms
 
 from apps.accounts.models import Address
 
+from .models import normalize_coupon_code
+
 
 class CheckoutAddressForm(forms.Form):
     saved_address = forms.ChoiceField(
@@ -83,3 +85,13 @@ def shipping_address_from_address(address: Address) -> dict[str, str]:
         "postal_code": address.postal_code,
         "address_line": address.address_line,
     }
+
+
+class CouponForm(forms.Form):
+    code = forms.CharField(max_length=32, label="Coupon code")
+
+    def clean_code(self) -> str:
+        code = normalize_coupon_code(self.cleaned_data["code"])
+        if not code:
+            raise forms.ValidationError("Enter a coupon code.")
+        return code

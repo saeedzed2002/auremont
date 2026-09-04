@@ -5,11 +5,17 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.cart.services import find_cart_for_request
 
-from .forms import CheckoutAddressForm
+from .forms import CheckoutAddressForm, CouponForm
 from .models import Order
-from .services import CheckoutValidationError, checkout_summary, create_paid_order
+from .services import (
+    CheckoutValidationError,
+    CouponValidationError,
+    checkout_summary,
+    create_paid_order,
+)
 
 CHECKOUT_ADDRESS_SESSION_KEY = "checkout_shipping_address"
+CHECKOUT_COUPON_SESSION_KEY = "checkout_coupon_code"
 
 
 @login_required
@@ -39,15 +45,56 @@ def checkout_review(request: HttpRequest) -> HttpResponse:
         return redirect("orders:checkout")
 
     try:
-        summary = checkout_summary(find_cart_for_request(request))
+        summary = _summary_for_session_coupon(request)
+    except CouponValidationError as error:
+        request.session.pop(CHECKOUT_COUPON_SESSION_KEY, None)
+        messages.error(request, str(error))
+        try:
+            summary = checkout_summary(find_cart_for_request(request))
+        except CheckoutValidationError as cart_error:
+            messages.error(request, str(cart_error))
+            return redirect("cart:detail")
     except CheckoutValidationError as error:
         messages.error(request, str(error))
         return redirect("cart:detail")
 
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "remove_coupon":
+            request.session.pop(CHECKOUT_COUPON_SESSION_KEY, None)
+            messages.success(request, "Coupon removed from this checkout.")
+        elif action == "apply_coupon":
+            form = CouponForm(request.POST)
+            if form.is_valid():
+                try:
+                    checkout_summary(
+                        find_cart_for_request(request),
+                        coupon_code=form.cleaned_data["code"],
+                    )
+                except CouponValidationError as error:
+                    request.session.pop(CHECKOUT_COUPON_SESSION_KEY, None)
+                    messages.error(request, str(error))
+                else:
+                    request.session[CHECKOUT_COUPON_SESSION_KEY] = form.cleaned_data[
+                        "code"
+                    ]
+                    messages.success(request, "Coupon applied to this checkout.")
+            else:
+                messages.error(request, "Enter a valid coupon code.")
+        else:
+            return HttpResponseBadRequest("Unknown coupon action.")
+        return redirect("orders:checkout_review")
+
     return render(
         request,
         "orders/review.html",
-        {"shipping_address": shipping_address, "summary": summary},
+        {
+            "coupon_form": CouponForm(
+                initial={"code": summary.coupon.code if summary.coupon else ""}
+            ),
+            "shipping_address": shipping_address,
+            "summary": summary,
+        },
     )
 
 
@@ -58,7 +105,11 @@ def mock_payment(request: HttpRequest) -> HttpResponse:
         return redirect("orders:checkout")
 
     try:
-        summary = checkout_summary(find_cart_for_request(request))
+        summary = _summary_for_session_coupon(request)
+    except CouponValidationError as error:
+        request.session.pop(CHECKOUT_COUPON_SESSION_KEY, None)
+        messages.error(request, str(error))
+        return redirect("orders:checkout_review")
     except CheckoutValidationError as error:
         messages.error(request, str(error))
         return redirect("cart:detail")
@@ -85,12 +136,18 @@ def mock_payment(request: HttpRequest) -> HttpResponse:
             user=request.user,
             cart=find_cart_for_request(request),
             shipping_address=shipping_address,
+            coupon_code=_coupon_code_from_session(request),
         )
+    except CouponValidationError as error:
+        request.session.pop(CHECKOUT_COUPON_SESSION_KEY, None)
+        messages.error(request, str(error))
+        return redirect("orders:checkout_review")
     except CheckoutValidationError as error:
         messages.error(request, str(error))
         return redirect("cart:detail")
 
     request.session.pop(CHECKOUT_ADDRESS_SESSION_KEY, None)
+    request.session.pop(CHECKOUT_COUPON_SESSION_KEY, None)
     messages.success(request, f"Order {order.order_number} has been confirmed.")
     return redirect("orders:detail", order_number=order.order_number)
 
@@ -119,3 +176,15 @@ def _shipping_address_or_redirect(request: HttpRequest) -> dict[str, str] | None
         )
         return None
     return shipping_address
+
+
+def _coupon_code_from_session(request: HttpRequest) -> str | None:
+    coupon_code = request.session.get(CHECKOUT_COUPON_SESSION_KEY)
+    return coupon_code if isinstance(coupon_code, str) else None
+
+
+def _summary_for_session_coupon(request: HttpRequest):
+    return checkout_summary(
+        find_cart_for_request(request),
+        coupon_code=_coupon_code_from_session(request),
+    )

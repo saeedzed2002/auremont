@@ -1,11 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import models, transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
+
+from apps.catalog.models import Watch, WatchImage
 
 from .forms import AddressForm, ProfileForm
-from .models import Address
+from .models import Address, WishlistItem
 
 
 @login_required
@@ -16,6 +21,44 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         "accounts/dashboard.html",
         {"default_address": default_address},
     )
+
+
+@login_required
+def wishlist(request: HttpRequest) -> HttpResponse:
+    wishlist_items = request.user.wishlist_items.select_related(
+        "watch",
+        "watch__brand",
+        "watch__category",
+    ).prefetch_related(
+        models.Prefetch(
+            "watch__images",
+            queryset=WatchImage.objects.filter(is_primary=True),
+        )
+    )
+    return render(request, "accounts/wishlist.html", {"wishlist_items": wishlist_items})
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request: HttpRequest, slug: str) -> HttpResponse:
+    watch = get_object_or_404(
+        Watch,
+        slug=slug,
+        is_active=True,
+        brand__is_active=True,
+        category__is_active=True,
+    )
+    wishlist_item, created = WishlistItem.objects.get_or_create(
+        user=request.user,
+        watch=watch,
+    )
+    if created:
+        messages.success(request, f"{watch.name} was saved to your wishlist.")
+    else:
+        wishlist_item.delete()
+        messages.success(request, f"{watch.name} was removed from your wishlist.")
+
+    return redirect(_wishlist_return_url(request, watch))
 
 
 @login_required
@@ -116,3 +159,14 @@ def address_delete(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect("accounts:address_list")
 
     return render(request, "accounts/address_confirm_delete.html", {"address": address})
+
+
+def _wishlist_return_url(request: HttpRequest, watch: Watch) -> str:
+    next_url = request.POST.get("next")
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+    return reverse("catalog:watch_detail", kwargs={"slug": watch.slug})

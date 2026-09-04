@@ -1,16 +1,23 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.accounts.models import Address
 from apps.cart.models import Cart, CartItem
 from apps.catalog.models import Brand, Category, Watch
 
-from .models import Order
-from .services import CheckoutValidationError, create_paid_order
+from .models import Coupon, Order
+from .services import (
+    CheckoutValidationError,
+    CouponValidationError,
+    checkout_summary,
+    create_paid_order,
+)
 
 
 class OrderFactoryMixin:
@@ -70,6 +77,103 @@ class OrderModelTests(OrderFactoryMixin, TestCase):
 
         with self.assertRaises(ValidationError):
             order.transition_to(Order.Status.SHIPPED)
+
+
+class CouponModelTests(TestCase):
+    def test_coupon_normalizes_its_code_and_calculates_percentage_discount(
+        self,
+    ) -> None:
+        coupon = Coupon.objects.create(
+            code=" autumn10 ",
+            discount_type=Coupon.DiscountType.PERCENTAGE,
+            value=Decimal("10.00"),
+        )
+
+        self.assertEqual(coupon.code, "AUTUMN10")
+        self.assertEqual(coupon.discount_for(Decimal("7990.00")), Decimal("799.00"))
+
+    def test_coupon_rejects_invalid_percentage_and_validity_window(self) -> None:
+        current_time = timezone.now()
+        coupon = Coupon(
+            code="INVALID",
+            discount_type=Coupon.DiscountType.PERCENTAGE,
+            value=Decimal("101.00"),
+            valid_from=current_time,
+            valid_until=current_time,
+        )
+
+        with self.assertRaises(ValidationError):
+            coupon.full_clean()
+
+
+class CouponServiceTests(OrderFactoryMixin, TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(
+            email="collector@example.com",
+            password="a-strong-test-password",
+        )
+        self.watch = self.create_watch(discount_price=Decimal("3995.00"))
+        self.cart = Cart.objects.create(user=self.user)
+        CartItem.objects.create(cart=self.cart, watch=self.watch, quantity=2)
+
+    def test_percentage_coupon_recalculates_server_total_and_is_snapshotted(
+        self,
+    ) -> None:
+        coupon = Coupon.objects.create(
+            code="autumn10",
+            discount_type=Coupon.DiscountType.PERCENTAGE,
+            value=Decimal("10.00"),
+        )
+
+        summary = checkout_summary(self.cart, coupon_code=" autumn10 ")
+        order = create_paid_order(
+            user=self.user,
+            cart=self.cart,
+            shipping_address=self.shipping_address(),
+            coupon_code=coupon.code,
+        )
+
+        self.assertEqual(summary.discount, Decimal("799.00"))
+        self.assertEqual(summary.total, Decimal("7191.00"))
+        self.assertEqual(order.coupon_code, "AUTUMN10")
+        self.assertEqual(order.discount, Decimal("799.00"))
+        self.assertEqual(order.total, Decimal("7191.00"))
+
+        coupon.value = Decimal("50.00")
+        coupon.save(update_fields=["value", "updated_at"])
+        order.refresh_from_db()
+        self.assertEqual(order.discount, Decimal("799.00"))
+
+    def test_fixed_coupon_reduces_the_server_calculated_total(self) -> None:
+        Coupon.objects.create(
+            code="COLLECTOR500",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("500.00"),
+        )
+
+        summary = checkout_summary(self.cart, coupon_code="collector500")
+
+        self.assertEqual(summary.discount, Decimal("500.00"))
+        self.assertEqual(summary.total, Decimal("7490.00"))
+
+    def test_coupon_rejects_expiry_and_unmet_minimum_order(self) -> None:
+        Coupon.objects.create(
+            code="EXPIRED",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("100.00"),
+            valid_until=timezone.now() - timedelta(seconds=1),
+        )
+        Coupon.objects.create(
+            code="MINIMUM",
+            discount_type=Coupon.DiscountType.FIXED,
+            value=Decimal("100.00"),
+            minimum_order=Decimal("8000.00"),
+        )
+
+        with self.assertRaises(CouponValidationError):
+            checkout_summary(self.cart, coupon_code="EXPIRED")
+        with self.assertRaises(CouponValidationError):
+            checkout_summary(self.cart, coupon_code="MINIMUM")
 
 
 class OrderServiceTests(OrderFactoryMixin, TestCase):
@@ -156,6 +260,15 @@ class CheckoutFlowTests(OrderFactoryMixin, TestCase):
         )
         self.assertRedirects(response, reverse("orders:checkout_review"))
 
+    def create_coupon(self, **overrides) -> Coupon:
+        defaults = {
+            "code": "AUTUMN10",
+            "discount_type": Coupon.DiscountType.PERCENTAGE,
+            "value": Decimal("10.00"),
+        }
+        defaults.update(overrides)
+        return Coupon.objects.create(**defaults)
+
     def test_checkout_requires_authentication(self) -> None:
         response = self.client.get(reverse("orders:checkout"))
 
@@ -232,3 +345,55 @@ class CheckoutFlowTests(OrderFactoryMixin, TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_successful_payment_revalidates_and_snapshots_an_applied_coupon(
+        self,
+    ) -> None:
+        coupon = self.create_coupon()
+        self.begin_saved_address_checkout()
+
+        response = self.client.post(
+            reverse("orders:checkout_review"),
+            {"action": "apply_coupon", "code": " autumn10 "},
+        )
+
+        self.assertRedirects(response, reverse("orders:checkout_review"))
+        review_response = self.client.get(reverse("orders:checkout_review"))
+        self.assertEqual(review_response.context["summary"].coupon, coupon)
+        self.assertEqual(review_response.context["summary"].discount, Decimal("447.50"))
+
+        response = self.client.post(
+            reverse("orders:mock_payment"),
+            {"outcome": "success"},
+        )
+
+        order = Order.objects.get(user=self.user)
+        self.assertRedirects(
+            response,
+            reverse("orders:detail", kwargs={"order_number": order.order_number}),
+        )
+        self.assertEqual(order.coupon_code, "AUTUMN10")
+        self.assertEqual(order.discount, Decimal("447.50"))
+        self.assertEqual(order.total, Decimal("4027.50"))
+
+    def test_payment_rejects_a_coupon_that_becomes_invalid_after_review(self) -> None:
+        coupon = self.create_coupon()
+        self.begin_saved_address_checkout()
+        self.client.post(
+            reverse("orders:checkout_review"),
+            {"action": "apply_coupon", "code": coupon.code},
+        )
+        coupon.is_active = False
+        coupon.save(update_fields=["is_active", "updated_at"])
+
+        response = self.client.post(
+            reverse("orders:mock_payment"),
+            {"outcome": "success"},
+        )
+
+        self.assertRedirects(response, reverse("orders:checkout_review"))
+        self.assertFalse(Order.objects.exists())
+        self.assertTrue(self.cart.items.exists())
+        self.watch.refresh_from_db()
+        self.assertEqual(self.watch.stock, 3)
+        self.assertNotIn("checkout_coupon_code", self.client.session)
