@@ -5,9 +5,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{% block meta_description %}Auremont is an independent luxury watch store demonstration project.{% endblock %}">
+    <meta name="theme-color" content="#141513">
+    <meta property="og:title" content="Auremont — Time, Refined.">
     <meta property="og:site_name" content="Auremont">
     <meta property="og:description" content="Time, Refined.">
-    {% if request %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endif %}
+    <meta property="og:type" content="website">
+    {% if request %}
+      <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+      <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+    {% endif %}
     <title>{% block title %}Auremont — Time, Refined.{% endblock %}</title>
     <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'css/site.css' %}">

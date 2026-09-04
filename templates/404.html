@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Page not found — Auremont{% endblock %}
+{% block meta_description %}The requested Auremont page is not available.{% endblock %}
+
+{% block content %}
+  <section class="mx-auto flex min-h-[calc(100vh-13rem)] max-w-3xl items-center px-5 py-16 sm:px-8 lg:py-24">
+    <div class="border-l-2 border-brass pl-5">
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-brass">Error / 404</p>
+      <h1 class="mt-4 font-display text-5xl leading-[0.9] tracking-[-0.035em] text-charcoal sm:text-7xl">This page is not part of the collection.</h1>
+      <p class="mt-6 max-w-xl text-base leading-7 text-graphite">The address may be outdated, or the page may no longer be available. Return to the collection to continue browsing.</p>
+      <div class="mt-9 flex flex-wrap gap-4">
+        <a class="rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite" href="{% url 'catalog:watch_list' %}">Browse watches</a>
+        <a class="rounded-sm border border-charcoal/25 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal" href="{% url 'core:home' %}">Return home</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

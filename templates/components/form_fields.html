@@ -2,7 +2,7 @@
   {{ hidden_field }}
 {% endfor %}
 {% for field in form.visible_fields %}
-  <div>
+  <div{% if field.errors %} class="field-has-errors"{% endif %}>
     {% if field.field.widget.input_type == "checkbox" %}
       <label class="flex cursor-pointer items-start gap-3 text-sm leading-6 text-graphite" for="{{ field.id_for_label }}">
         {{ field }}
@@ -13,6 +13,10 @@
       {{ field }}
     {% endif %}
     {% if field.help_text %}<p class="mt-2 text-xs leading-5 text-graphite">{{ field.help_text }}</p>{% endif %}
-    {{ field.errors }}
+    {% if field.errors %}
+      <ul id="{{ field.auto_id }}-errors" class="errorlist" role="alert">
+        {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
   </div>
 {% endfor %}

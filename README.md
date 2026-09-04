@@ -18,9 +18,11 @@ private saved watches and server-revalidated checkout discounts. **Phase 8 —
 Reviews** adds moderated, verified-purchase product reviews. **Phase 9 —
 Testing & Hardening** covers authentication boundaries, safe redirects, cart
 merge adjustments, coupon failure rollback, payment errors, and concurrent
-stock allocation.
+stock allocation. **Phase 10 — Visual Polish** adds branded error pages,
+accessible form-error feedback, duplicate-submit feedback, mobile navigation
+refinement, canonical and Open Graph metadata, and reduced-motion-safe detail.
 
-The remaining planned work is visual polish and production deployment.
+The remaining planned work is production deployment.
 
 ## Stack
 

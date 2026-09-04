@@ -124,15 +124,15 @@
                 {% csrf_token %}
                 <p class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">Verified purchase review</p>
                 <div class="mt-5 grid gap-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
-                  <div>
+                  <div{% if review_form.rating.errors %} class="field-has-errors"{% endif %}>
                     <label class="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-graphite" for="{{ review_form.rating.id_for_label }}">{{ review_form.rating.label }}</label>
                     {{ review_form.rating }}
-                    {% for error in review_form.rating.errors %}<p class="mt-2 text-sm text-red-700">{{ error }}</p>{% endfor %}
+                    {% if review_form.rating.errors %}<ul id="{{ review_form.rating.auto_id }}-errors" class="errorlist" role="alert">{% for error in review_form.rating.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
                   </div>
-                  <div>
+                  <div{% if review_form.comment.errors %} class="field-has-errors"{% endif %}>
                     <label class="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-graphite" for="{{ review_form.comment.id_for_label }}">{{ review_form.comment.label }}</label>
                     {{ review_form.comment }}
-                    {% for error in review_form.comment.errors %}<p class="mt-2 text-sm text-red-700">{{ error }}</p>{% endfor %}
+                    {% if review_form.comment.errors %}<ul id="{{ review_form.comment.auto_id }}-errors" class="errorlist" role="alert">{% for error in review_form.comment.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
                   </div>
                 </div>
                 <button class="mt-5 rounded-sm bg-charcoal px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory transition-colors hover:bg-graphite focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Submit review</button>

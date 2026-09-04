@@ -8,7 +8,8 @@
   --color-graphite: #4b4d48;
   --color-ivory: #f5f2ea;
   --color-stone: #e8e3d9;
-  --color-brass: #9a7b45;
+  --color-brass: #75521e;
+  --color-brass-light: #d4b67c;
   --font-display: Iowan Old Style, Baskerville, Georgia, serif;
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
 }
@@ -20,6 +21,12 @@
 
   body {
     min-width: 20rem;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 4px;
   }
 
   ::selection {
@@ -58,12 +65,75 @@
   }
 
   .account-form .errorlist {
-    @apply mt-2 list-none text-sm text-red-800;
+    @apply mt-2 list-none text-sm leading-6 text-red-800;
+  }
+
+  .field-has-errors :is(input, textarea, select) {
+    border-color: rgb(153 27 27);
+  }
+
+  .field-has-errors :is(input, textarea, select):focus {
+    border-color: rgb(153 27 27);
+    --tw-ring-color: rgb(153 27 27 / 0.5);
+  }
+
+  form[aria-busy="true"] :is(button, input[type="submit"]) {
+    cursor: wait;
+  }
+
+  form[aria-busy="true"] :is(button, input[type="submit"]):disabled {
+    opacity: 0.65;
+  }
+
+  .is-loading::before {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.55rem;
+    border: 1px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 9999px;
+    content: "";
+    animation: spinner 650ms linear infinite;
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dial-arrival {
+  from {
+    opacity: 0;
+    transform: scale(0.94) rotate(-5deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .is-loading::before {
+    animation: none;
   }
 }

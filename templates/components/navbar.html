@@ -26,7 +26,7 @@
     </div>
 
     <button class="rounded-sm p-2 text-charcoal focus:outline-2 focus:outline-offset-4 focus:outline-brass lg:hidden" type="button" data-menu-button aria-expanded="false" aria-controls="mobile-navigation">
-      <span class="sr-only">Open navigation</span>
+      <span class="sr-only" data-menu-label>Open navigation</span>
       <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>
@@ -34,23 +34,23 @@
   </div>
   <nav id="mobile-navigation" class="hidden border-t border-charcoal/15 px-5 py-5 lg:hidden" aria-label="Mobile navigation" data-mobile-menu>
     <div class="flex flex-col gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite">
-      <a href="{% url 'core:home' %}">Home</a>
-      <a href="{% url 'catalog:watch_list' %}">Shop</a>
-      <a href="{% url 'catalog:brand_list' %}">Brands</a>
-      <a href="{% url 'catalog:collection_list' %}">Collections</a>
-      <a href="{% url 'catalog:search' %}">Search</a>
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'core:home' %}">Home</a>
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:watch_list' %}">Shop</a>
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:brand_list' %}">Brands</a>
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:collection_list' %}">Collections</a>
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'catalog:search' %}">Search</a>
       {% if user.is_authenticated %}
-        <a href="{% url 'accounts:wishlist' %}">Wishlist</a>
+        <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'accounts:wishlist' %}">Wishlist</a>
       {% endif %}
-      <a href="{% url 'cart:detail' %}">Cart{% if cart_item_count %} ({{ cart_item_count }}){% endif %}</a>
+      <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'cart:detail' %}">Cart{% if cart_item_count %} ({{ cart_item_count }}){% endif %}</a>
       {% if user.is_authenticated %}
-        <a href="{% url 'accounts:dashboard' %}">Account</a>
+        <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'accounts:dashboard' %}">Account</a>
         <form action="{% url 'account_logout' %}" method="post">
           {% csrf_token %}
-          <button type="submit">Sign out</button>
+          <button class="rounded-sm text-left focus:outline-2 focus:outline-offset-4 focus:outline-brass" type="submit">Sign out</button>
         </form>
       {% else %}
-        <a href="{% url 'account_login' %}">Sign in</a>
+        <a class="rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brass" href="{% url 'account_login' %}">Sign in</a>
       {% endif %}
     </div>
   </nav>
