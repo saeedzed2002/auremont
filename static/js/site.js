@@ -49,3 +49,48 @@ document.addEventListener("submit", (event) => {
   submitter.classList.add("is-loading");
   submitter.textContent = submitter.dataset.loadingLabel || "Working…";
 });
+
+const tehranClock = document.querySelector("[data-tehran-clock]");
+
+if (tehranClock) {
+  const hourHand = tehranClock.querySelector("[data-clock-hour]");
+  const minuteHand = tehranClock.querySelector("[data-clock-minute]");
+  const secondHand = tehranClock.querySelector("[data-clock-second]");
+  const digitalTime = tehranClock.querySelector("[data-clock-digital]");
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Tehran",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const setHandAngle = (hand, degrees) => {
+    hand.style.transform = `translateY(-50%) rotate(${degrees - 90}deg)`;
+  };
+
+  const updateTehranClock = () => {
+    const now = new Date();
+    const time = Object.fromEntries(
+      formatter
+        .formatToParts(now)
+        .filter((part) => part.type !== "literal")
+        .map((part) => [part.type, part.value]),
+    );
+    const hour = Number(time.hour);
+    const minute = Number(time.minute);
+    const second = Number(time.second);
+
+    setHandAngle(hourHand, (hour % 12) * 30 + minute * 0.5 + second / 120);
+    setHandAngle(minuteHand, minute * 6 + second / 10);
+    setHandAngle(secondHand, second * 6);
+    digitalTime.textContent = `${time.hour}:${time.minute}:${time.second}`;
+    digitalTime.dateTime = now.toISOString();
+
+    window.setTimeout(updateTehranClock, 1000 - (Date.now() % 1000));
+  };
+
+  if (hourHand && minuteHand && secondHand && digitalTime) {
+    updateTehranClock();
+  }
+}

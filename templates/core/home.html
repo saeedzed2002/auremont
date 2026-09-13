@@ -11,14 +11,19 @@
         <p class="mt-8 max-w-md text-base leading-7 text-ivory/70">A considered collection of watches chosen for proportion, movement, and material presence—not an endless product grid.</p>
         <a class="mt-10 inline-flex border border-ivory px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-ivory transition-colors hover:border-brass hover:bg-brass focus:outline-2 focus:outline-offset-4 focus:outline-brass-light" href="{% url 'catalog:watch_list' %}">Shop the collection</a>
       </div>
-      <div class="relative mx-auto aspect-square w-full max-w-xl self-center motion-safe:animate-[dial-arrival_900ms_cubic-bezier(0.16,1,0.3,1)_both]" aria-hidden="true">
+      <div class="relative mx-auto aspect-square w-full max-w-xl self-center motion-safe:animate-[dial-arrival_900ms_cubic-bezier(0.16,1,0.3,1)_both]" data-tehran-clock aria-label="Live analog clock showing Iran time">
         <div class="absolute inset-[4%] rounded-full border border-ivory/20"></div>
         <div class="watch-dial-light absolute inset-[1%] rounded-full"></div>
         <div class="absolute inset-[16%] rounded-full border border-ivory/30"></div>
-        <div class="absolute left-1/2 top-1/2 h-px w-[34%] origin-left -translate-y-1/2 rotate-[-25deg] bg-brass"></div>
-        <div class="absolute left-1/2 top-1/2 h-px w-[23%] origin-left -translate-y-1/2 rotate-[115deg] bg-ivory"></div>
+        <div class="absolute left-1/2 top-1/2 h-px w-[37%] origin-left -translate-y-1/2 bg-brass" data-clock-second aria-hidden="true"></div>
+        <div class="absolute left-1/2 top-1/2 h-px w-[30%] origin-left -translate-y-1/2 bg-ivory" data-clock-minute aria-hidden="true"></div>
+        <div class="absolute left-1/2 top-1/2 h-[3px] w-[22%] origin-left -translate-y-1/2 bg-ivory" data-clock-hour aria-hidden="true"></div>
         <div class="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ivory bg-charcoal"></div>
-        <span class="absolute inset-0 grid place-items-center font-display text-xs tracking-[0.4em] text-ivory/70">AUREMONT</span>
+        <span class="pointer-events-none absolute inset-0 grid place-items-center font-display text-xs tracking-[0.4em] text-ivory/70">AUREMONT</span>
+        <div class="pointer-events-none absolute inset-x-0 top-[62%] flex flex-col items-center">
+          <time class="font-mono text-xs tracking-[0.18em] text-brass-light sm:text-sm" data-clock-digital datetime="">--:--:--</time>
+          <span class="mt-1 text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-ivory/50">Iran time</span>
+        </div>
       </div>
     </div>
   </section>

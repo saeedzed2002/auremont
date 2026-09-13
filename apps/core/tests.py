@@ -14,6 +14,8 @@ class HomePageTests(TestCase):
         self.assertContains(response, "Time, Refined.")
         self.assertContains(response, "Featured watches")
         self.assertContains(response, "Independent demonstration project")
+        self.assertContains(response, "data-tehran-clock")
+        self.assertContains(response, "data-clock-second")
 
     def test_canonical_url_omits_search_parameters(self) -> None:
         response = self.client.get(reverse("catalog:search"), {"q": "tudor"})
