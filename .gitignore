@@ -1,21 +1,143 @@
-# Python
+# ===============================
+# ⚙️ محیط مجازی (Virtual Envs)
+# ===============================
 .venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ===============================
+# 🐍 فایل‌های موقتی و کش پایتون
+# ===============================
 __pycache__/
 *.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+develop-eggs/
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# ===============================
+# 🧰 تنظیمات IDEها (PyCharm, VSCode, etc.)
+# ===============================
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# ===============================
+# 🧩 فایل‌های لاگ و موقت
+# ===============================
+*.log
+*.pot
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+
+# ===============================
+# 💾 پایگاه داده محلی (SQLite یا مشابه)
+# ===============================
+*.sqlite
 *.sqlite3
+db.sqlite3-journal
 
-# Django
+# ===============================
+# 🖼️ فایل‌های استاتیک و مدیا تولید شده
+# ===============================
+/staticfiles/
+# static/ را فقط در صورت Build شدن ignore کن، نه برای فایل‌های CSS و JS خودت
+# /static/
+/media/*
+!/media/.gitkeep
+/static_root/
+/media_root/
+
+# ===============================
+# 🧱 فایل‌های محیط (Environment variables)
+# ===============================
 .env
-staticfiles/
-media/*
-!media/.gitkeep
+.env.*
+!.env.example
+!.env.production.example
+.envrc
+*.env
+*.env.local
 
-# Node
-node_modules/
+# ===============================
+# 🔐 تنظیمات و کلیدهای امنیتی
+# ===============================
+secrets.json
+*.pem
+*.key
+*.crt
+*.csr
 
-# Tooling
-.coverage
+# ===============================
+# 🧪 پوشه‌های مربوط به تست و گزارش
+# ===============================
 htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
 .ruff_cache/
-.pytest_cache/
 .tmp/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.pytest_cache/
+test-results/
+junit-*.xml
+
+# ===============================
+# 🧱 فایل‌های Docker و CI/CD
+# ===============================
+*.pid
+*.seed
+*.pid.lock
+docker-compose.override.yml
+.docker/
+*.dockerfile
+
+# ===============================
+# 🪶 مستندات و خروجی‌ها
+# ===============================
+/docs/_build/
+/site/
+
+# ===============================
+# 💻 تنظیمات سیستم عامل
+# ===============================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===============================
+# 📦 بسته‌های NodeJS (در صورت وجود front-end)
+# ===============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===============================
+# 🧩 محیط‌های Jupyter (در صورت استفاده)
+# ===============================
+.ipynb_checkpoints/
+*.ipynb
