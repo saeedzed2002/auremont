@@ -192,3 +192,7 @@ production Compose file intentionally does not publish PostgreSQL. Copy
 `.env.production.example` to `.env.production`, replace every placeholder,
 then follow [the production operations guide](docs/production.md). Do not use
 the development `compose.yaml` for public traffic.
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE).
