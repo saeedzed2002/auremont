@@ -1,6 +1,22 @@
 # Auremont
 
 Auremont is an independent Django luxury-watch store demonstration project.
+The planned development phases are complete. This is a portfolio demonstration,
+not a live store: payments are simulated, and public deployment still requires
+the infrastructure and configuration described below.
+
+## Screenshots
+
+### Home page
+
+![Auremont home page with the live Tehran clock](docs/screenshots/home.png)
+
+### Sign in
+
+![Auremont sign-in page](docs/screenshots/sign-in.png)
+
+## Project scope
+
 It currently contains **Phase 1 — Foundation**, **Phase 2 — Catalog**, and
 **Phase 3 — Storefront UI**: project configuration, PostgreSQL, a custom
 email-based user model, a Tailwind-built site shell, catalog administration,
@@ -28,6 +44,15 @@ templates, CI configuration validation, and operations guidance.
 
 Public deployment still requires a domain, a trusted TLS terminator, DNS, SMTP
 credentials, and a backup destination.
+
+## Releases and container package
+
+Versioned source releases are available on the repository's Releases page.
+The container publication workflow builds the application image for version
+tags and publishes it to `ghcr.io/saeedzed2002/auremont`. Package visibility
+and access depend on the repository owner's GitHub package settings. The image
+requires the production environment, database, and static/media setup described
+in the [operations guide](docs/production.md).
 
 ## Stack
 
